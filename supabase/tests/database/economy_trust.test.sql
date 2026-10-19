@@ -1,11 +1,11 @@
 -- Confiance : comptes trop récents, comptes bannis, échanges déséquilibrés
--- et limites par paire sur le marché (anti multi-comptes), marché ouvert
--- dès 10 boosters pendant le lancement.
+-- et limites par paire sur le marché (anti multi-comptes), échanges et
+-- marché ouverts dès 10 boosters pendant le lancement.
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
 
-select plan(23);
+select plan(24);
 
 /* ---------- Jeu de données ---------- */
 -- O : ancien compte. N : créé aujourd'hui. Y : 10 jours. D : compte Discord
@@ -56,8 +56,8 @@ set local request.jwt.claims = '{"sub":"00000000-0000-4000-a000-000000000602","r
 select throws_ok(
   $$ select public.create_trade('00000000-0000-4000-a000-000000000601',
        array['00000000-0000-4000-b000-000000000602']::uuid[], array['00000000-0000-4000-b000-000000000601']::uuid[]) $$,
-  'P0001', 'account too new',
-  'un compte de moins de 3 jours ne propose pas d''échange'
+  'P0001', (select case when now() < public.launch_market_until() then 'launch packs' else 'account too new' end),
+  'un compte de moins de 3 jours sans 10 boosters ne propose pas d''échange'
 );
 select throws_ok(
   $$ select public.list_copy('00000000-0000-4000-b000-000000000602', 50) $$,
@@ -151,7 +151,7 @@ select throws_ok(
   'un même acheteur ne conclut pas plus de 3 ventes avec le même vendeur en 7 jours'
 );
 
-/* ---------- Lancement : marché ouvert dès 10 boosters ---------- */
+/* ---------- Lancement : échanges et marché ouverts dès 10 boosters ---------- */
 -- Dates fixes : le 25 octobre 2026 tombe dans le lancement, le 5 novembre après.
 
 reset role;
@@ -177,8 +177,10 @@ select is(public.market_block('00000000-0000-4000-a000-000000000605', '2026-10-2
   'un joueur banni reste exclu du marché pendant le lancement');
 select is(public.market_block('00000000-0000-4000-a000-000000000601', '2026-11-05'), null,
   'un ancien compte garde le marché après le lancement');
-select is(public.trade_block('00000000-0000-4000-a000-000000000602'), 'account too new',
-  'le lancement n''ouvre pas les échanges : seulement le marché');
+select is(public.trade_block_at('00000000-0000-4000-a000-000000000602', '2026-10-25'), null,
+  'pendant le lancement, 10 boosters ouverts ouvrent aussi les échanges');
+select is(public.trade_block_at('00000000-0000-4000-a000-000000000602', '2026-11-05'), 'account too new',
+  'après le lancement, les échanges attendent de nouveau 3 jours');
 
 update public.profiles set created_at = now() where id = '00000000-0000-4000-a000-000000000603';
 select is(public.market_block('00000000-0000-4000-a000-000000000603', '2026-10-25'), 'launch packs',
