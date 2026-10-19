@@ -2,7 +2,7 @@
 -- n'appartient qu'à eux. Ce que le compte principal a reçu (cartes, jetons)
 -- reste à lui.
 --
---   supabase db query --linked -f scripts/seed/unseed.sql
+--   supabase db query --local -f scripts/seed/unseed.sql
 
 begin;
 

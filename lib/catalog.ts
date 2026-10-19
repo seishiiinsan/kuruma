@@ -2,7 +2,8 @@ import "server-only";
 import catalogue from "@/data/cards.json";
 import type { CardData } from "./cards";
 
-const STORAGE = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/`;
+// A local Supabase has no car photos: dev reads them from the production bucket.
+const STORAGE = `${process.env.NEXT_PUBLIC_PHOTOS_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/`;
 
 /** Hosted photos are stored as a bucket path; Commons fallbacks as full URLs. */
 export const CARDS = (catalogue as CardData[]).map((card) =>

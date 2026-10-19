@@ -22,43 +22,58 @@ Le détail produit est dans [PRODUCT.md](PRODUCT.md), la direction artistique da
 
 ## Démarrer en local
 
-Prérequis : Node 20+, un projet Supabase (ou la stack locale, voir plus bas) avec Discord activé comme fournisseur d'authentification.
+Le dev tourne sur une base Supabase **locale** (Docker), jamais sur la prod.
+
+Prérequis : Node 20+, Docker, la [CLI Supabase](https://supabase.com/docs/guides/local-development/cli/getting-started).
+
+**1. Une seule fois : Discord en local.** Dans le [Discord Developer Portal](https://discord.com/developers/applications), sur l'app Kuruma, onglet OAuth2, ajoute la redirection `http://127.0.0.1:54321/auth/v1/callback`. Copie ensuite le Client ID et le Client Secret dans `supabase/.env` (non versionné) :
+
+```
+SUPABASE_AUTH_EXTERNAL_DISCORD_CLIENT_ID=...
+SUPABASE_AUTH_EXTERNAL_DISCORD_SECRET=...
+```
+
+**2. Les variables de Next.** Crée `.env.development.local` à partir de [`.env.example`](.env.example) (section dev). Il n'est lu que par `npm run dev` ; `.env.local`, s'il existe, garde les valeurs de prod pour `npm run build`.
+
+**3. Lancer :**
 
 ```bash
 npm install
 ```
 
 ```bash
-cp .env.example .env.local
+npm run db:start
 ```
-
-Renseigne dans `.env.local` :
-
-| Variable | Rôle |
-| --- | --- |
-| `NEXT_PUBLIC_SUPABASE_URL` | URL du projet Supabase |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Clé publique (publishable) du projet |
-| `NEXT_PUBLIC_SITE_URL` | Adresse publique du site, pour les liens absolus, le sitemap et les aperçus de partage. Facultatif : `https://kuruma.games` en production, `http://localhost:3000` en dev |
-
-Puis :
 
 ```bash
 npm run dev
 ```
 
-Le jeu tourne sur [http://localhost:3000](http://localhost:3000).
+Le jeu tourne sur [http://localhost:3000](http://localhost:3000), le Studio Supabase local sur [http://127.0.0.1:54323](http://127.0.0.1:54323). Les photos des voitures sont lues dans le bucket public de prod (`NEXT_PUBLIC_PHOTOS_URL`), la base locale n'en a pas.
+
+**Données de test.** Connecte-toi une première fois avec Discord, puis remplis la base avec 48 joueurs factices, des échanges, des ventes et des notifications :
+
+```bash
+npm run db:seed
+```
+
+**Te donner les droits admin en local :**
+
+```bash
+supabase db query --local "insert into public.admins (user_id) select id from public.profiles where handle = 'ton-pseudo'"
+```
+
+`npm run db:reset` repart d'une base vide (toutes les migrations rejouées).
 
 ## Base de données
 
-Le schéma est entièrement décrit par les migrations de [`supabase/migrations/`](supabase/migrations), appliquées avec la CLI Supabase :
+Le schéma est entièrement décrit par les migrations de [`supabase/migrations/`](supabase/migrations). Une nouvelle migration se teste en local (`npm run db:reset`), puis s'applique en prod :
 
 ```bash
 supabase db push
 ```
 
 Les types TypeScript de la base sont dans [`lib/supabase/types.ts`](lib/supabase/types.ts).
-
-Un jeu de données de test (joueurs factices, échanges, ventes…) est dans [`scripts/seed/`](scripts/seed).
 
 ## Tests
 
@@ -78,7 +93,10 @@ Voir [`supabase/tests/README.md`](supabase/tests/README.md) pour le détail de c
 
 | Commande | Rôle |
 | --- | --- |
-| `npm run dev` | Serveur de développement |
+| `npm run dev` | Serveur de développement (base locale) |
+| `npm run db:start` / `npm run db:stop` | Démarre / arrête la base Supabase locale |
+| `npm run db:reset` | Recrée la base locale à partir des migrations |
+| `npm run db:seed` | Ajoute les joueurs factices à la base locale |
 | `npm run build` / `npm start` | Build et serveur de production |
 | `npm run lint` | ESLint |
 | `npm run test:db` | Tests SQL (pgTAP) |
