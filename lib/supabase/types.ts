@@ -370,6 +370,7 @@ export type Database = {
           created_at: string
           id: string
           kind: string
+          level: number | null
           read_at: string | null
           trade_id: string | null
           user_id: string
@@ -380,6 +381,7 @@ export type Database = {
           created_at?: string
           id?: string
           kind: string
+          level?: number | null
           read_at?: string | null
           trade_id?: string | null
           user_id: string
@@ -390,6 +392,7 @@ export type Database = {
           created_at?: string
           id?: string
           kind?: string
+          level?: number | null
           read_at?: string | null
           trade_id?: string | null
           user_id?: string
@@ -568,6 +571,7 @@ export type Database = {
           handle: string
           id: string
           onboarded_at: string | null
+          permit_level: number
           title_id: string | null
           updated_at: string
         }
@@ -584,6 +588,7 @@ export type Database = {
           handle: string
           id: string
           onboarded_at?: string | null
+          permit_level?: number
           title_id?: string | null
           updated_at?: string
         }
@@ -600,6 +605,7 @@ export type Database = {
           handle?: string
           id?: string
           onboarded_at?: string | null
+          permit_level?: number
           title_id?: string | null
           updated_at?: string
         }
@@ -1185,6 +1191,7 @@ export type Database = {
         Returns: number
       }
       my_metrics: { Args: never; Returns: Json }
+      my_permit: { Args: never; Returns: Json }
       my_missions: {
         Args: never
         Returns: {

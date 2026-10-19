@@ -9,13 +9,11 @@ import { TradingCard } from "../trading-card";
 import type { Stack } from "./collection-grid";
 import { buttonPrimary } from "./ui";
 
-const SLOTS = 6;
-
 const normalize = (s: string) =>
   s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 
 /** The player's own garage: add from the collection, reorder, remove. Saves on every change. */
-export function GarageEditor({ garage, stacks }: { garage: Copy[]; stacks: Stack[] }) {
+export function GarageEditor({ garage, stacks, slots: size }: { garage: Copy[]; stacks: Stack[]; slots: number }) {
   const [slots, setSlots] = useState(garage);
   const [pending, start] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -90,7 +88,7 @@ export function GarageEditor({ garage, stacks }: { garage: Copy[]; stacks: Stack
             </div>
           </li>
         ))}
-        {Array.from({ length: SLOTS - slots.length }, (_, i) => (
+        {Array.from({ length: size - slots.length }, (_, i) => (
           <li key={`empty-${i}`}>
             <button
               type="button"

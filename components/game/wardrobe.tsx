@@ -167,7 +167,11 @@ function Item({
       <div className="flex flex-col gap-1.5">
         <p className="flex items-start gap-1.5 text-[0.75rem] leading-snug text-muted">
           <Lock className="mt-0.5 size-3 shrink-0" aria-hidden />
-          {family ? goalText(family, goal) : `Objectif ${int.format(goal)}`}
+          {family
+            ? goalText(family, goal)
+            : metric === "level"
+              ? `Atteindre le niveau ${goal} du permis`
+              : `Objectif ${int.format(goal)}`}
         </p>
         <div
           role="progressbar"

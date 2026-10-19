@@ -2,10 +2,11 @@
 
 import { useRef, useState } from "react";
 import Link from "next/link";
-import { Award, Bell, CheckCheck, Gift, Heart, Package, ShieldCheck, Target } from "lucide-react";
+import { Award, Bell, CheckCheck, Gift, Heart, IdCard, Package, ShieldCheck, Target } from "lucide-react";
 import { markNotificationRead, markNotificationsRead } from "@/app/actions/notifications";
 import type { Notification, NotificationKind } from "@/lib/game";
 import { MAX_PACKS, type Wallet } from "@/lib/packs";
+import { GRADES, rewardsText } from "@/lib/permit";
 import { timeAgo } from "@/lib/time";
 import { useWallet } from "@/lib/wallet-store";
 import { Avatar } from "./avatar";
@@ -65,6 +66,22 @@ function wishAlert(n: Notification) {
           </>
         ),
       };
+    case "permit_up": {
+      const grade = GRADES.find((g) => g.level === n.level);
+      return {
+        href: "/moi",
+        text: grade ? (
+          <>
+            Tu obtiens ton permis <strong className="font-extrabold text-ink">{grade.name}</strong> :{" "}
+            {rewardsText(grade)}
+          </>
+        ) : (
+          <>
+            Ton permis passe au <strong className="font-extrabold text-ink">niveau {n.level}</strong>
+          </>
+        ),
+      };
+    }
     case "moderation":
       return {
         href: "/moi",
@@ -207,7 +224,11 @@ export function NotificationMenu({
                     onClick={() => open(n)}
                     className="flex items-start gap-3 rounded-xl px-3 py-2.5 transition-colors hover:bg-white/10"
                   >
-                    {n.kind === "moderation" ? (
+                    {n.kind === "permit_up" ? (
+                      <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-accent/15">
+                        <IdCard className="size-4 text-accent" aria-hidden />
+                      </span>
+                    ) : n.kind === "moderation" ? (
                       <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-blue/15">
                         <ShieldCheck className="size-4 text-blue" aria-hidden />
                       </span>

@@ -7,6 +7,7 @@ import { Check, Recycle } from "lucide-react";
 import { buyListing, buyOffer, buyUsed, sellCopy, sellDuplicates } from "@/app/actions/economy";
 import { TIERS, TIER_ORDER, type CardFace, type CardTier, type Finish } from "@/lib/cards";
 import { SELL_PRICE, USED_PRICE } from "@/lib/economy";
+import { discounted, shopDiscount } from "@/lib/permit";
 import type { Copy } from "@/lib/game";
 import { PACKS, packSize, type Wallet } from "@/lib/packs";
 import { MARKET_DAYS, MARKET_FEE_RATE, MAX_LISTINGS } from "@/lib/market";
@@ -191,7 +192,7 @@ function PackStrip({ coins }: { coins: number }) {
 
 type Filter = "all" | "missing" | CardTier;
 
-function UsedStock({ stock, owned, coins }: { stock: Copy[]; owned: Set<string>; coins: number }) {
+function UsedStock({ stock, owned, coins, level }: { stock: Copy[]; owned: Set<string>; coins: number; level: number }) {
   const [filter, setFilter] = useState<Filter>("all");
   const filters: { id: Filter; label: string; count: number }[] = [
     { id: "all", label: "Toutes", count: stock.length },
@@ -252,7 +253,7 @@ function UsedStock({ stock, owned, coins }: { stock: Copy[]; owned: Set<string>;
               card={copy.card}
               serial={copy.serial}
               finish={copy.finish}
-              price={USED_PRICE[copy.card.tier]}
+              price={discounted(USED_PRICE[copy.card.tier], level)}
               coins={coins}
               owned={owned.has(copy.card.slug)}
               buy={() => buyUsed(copy.id)}
@@ -474,6 +475,7 @@ export function Shop({
   myListings,
   owned: ownedSlugs,
   duplicates,
+  level,
 }: {
   wallet: Wallet;
   offers: Offer[];
@@ -482,15 +484,19 @@ export function Shop({
   myListings: Listing[];
   owned: string[];
   duplicates: Record<CardTier, Copy[]>;
+  /** Permit level: cards from the window and second-hand cost less. */
+  level: number;
 }) {
   const { coins } = useWallet(initialWallet);
+  const discount = shopDiscount(level);
+  const permitNote = discount > 0 ? ` Ton permis te fait −${discount} %.` : "";
   const owned = useMemo(() => new Set(ownedSlugs), [ownedSlugs]);
 
   return (
     <div className="flex flex-col gap-16">
       <Section
         title="Vitrine du jour"
-        detail="Des voitures neuves, les mêmes pour tout le monde. Elle change chaque jour à minuit, la pièce de la semaine chaque lundi. Une seule de chaque par joueur."
+        detail={`Des voitures neuves, les mêmes pour tout le monde. Elle change chaque jour à minuit, la pièce de la semaine chaque lundi. Une seule de chaque par joueur.${permitNote}`}
       >
         <ShopWindow offers={offers} owned={owned} coins={coins} />
       </Section>
@@ -519,9 +525,9 @@ export function Shop({
       <Section
         id="occasions"
         title="Occasions"
-        detail="Des exemplaires revendus par les joueurs, numéro d'origine compris. Moins chers qu'en vitrine ; premier arrivé, premier servi."
+        detail={`Des exemplaires revendus par les joueurs, numéro d'origine compris. Moins chers qu'en vitrine ; premier arrivé, premier servi.${permitNote}`}
       >
-        <UsedStock stock={stock} owned={owned} coins={coins} />
+        <UsedStock stock={stock} owned={owned} coins={coins} level={level} />
       </Section>
 
       <Section

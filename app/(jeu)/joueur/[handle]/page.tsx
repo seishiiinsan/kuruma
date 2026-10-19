@@ -6,15 +6,16 @@ import { ArrowLeftRight, Palette, Settings, ShieldCheck } from "lucide-react";
 import { CATALOGUE_SIZE } from "@/lib/catalog";
 import { byRarity, TIERS, TIER_ORDER } from "@/lib/cards";
 import {
-  GARAGE_SLOTS,
   getAccount,
   getClaims,
   getCopiesOf,
   getGarage,
   getLeaderboard,
+  getMyPermit,
   getPlayerByHandle,
   getViewer,
 } from "@/lib/game";
+import { garageSlots } from "@/lib/permit";
 import { seriesById } from "@/lib/series";
 import { toStacks } from "@/lib/stacks";
 import { formatMonthYear } from "@/lib/time";
@@ -22,6 +23,7 @@ import { BadgeRow, FramedAvatar, PlayerTitle, bannerPaint } from "@/components/c
 import { RarityDiamonds } from "@/components/rarity-diamonds";
 import { TradingCard } from "@/components/trading-card";
 import { GarageEditor } from "@/components/game/garage-editor";
+import { PermitChip, PermitPanel } from "@/components/game/permit";
 import { ReportButton } from "@/components/game/report-button";
 import { EmptyState, buttonGhost, buttonInk, formatScore } from "@/components/game/ui";
 
@@ -62,6 +64,9 @@ async function PlayerProfile({ params }: { params: Promise<{ handle: string }> }
   ]);
   const completed = [...claims.keys()].flatMap((id) => seriesById(id) ?? []);
   const isMe = viewer?.id === player.id;
+  const permit = isMe ? await getMyPermit() : null;
+  const level = permit?.level ?? player.level;
+  const slots = garageSlots(level);
   const standing = board.find((s) => s.id === player.id);
   const stacks = toStacks(copies).sort(
     (a, b) => byRarity(a.card, b.card) || a.copies[0].serial - b.copies[0].serial,
@@ -100,6 +105,7 @@ async function PlayerProfile({ params }: { params: Promise<{ handle: string }> }
           <p className={`mt-2 ${banner ? "text-ink/80" : "text-muted"}`}>
             @{player.handle} · collectionne depuis {formatMonthYear(player.memberSince)}
           </p>
+          <PermitChip level={level} className="mt-3" />
         </div>
         {isMe ? (
           <div className="flex flex-wrap gap-2 self-start sm:flex-col sm:self-center">
@@ -139,16 +145,26 @@ async function PlayerProfile({ params }: { params: Promise<{ handle: string }> }
       </dl>
       </div>
 
+      {permit && (
+        <section className="mt-14">
+          <h2 className="title-drop font-display text-xl sm:text-2xl">Permis</h2>
+          <p className="mt-1 text-sm text-muted">Joue pour gagner de l&apos;XP : chaque permis débloque des places au garage, des réductions et des cosmétiques.</p>
+          <div className="mt-6">
+            <PermitPanel player={player} permit={permit} />
+          </div>
+        </section>
+      )}
+
       <section className="mt-14">
         <h2 className="title-drop font-display text-xl sm:text-2xl">Garage</h2>
         <p className="mt-1 text-sm text-muted">
           {isMe
-            ? `Ta vitrine publique : jusqu'à ${GARAGE_SLOTS} cartes, dans l'ordre que tu veux.`
-            : `Les ${GARAGE_SLOTS} cartes que ${player.name} expose.`}
+            ? `Ta vitrine publique : jusqu'à ${slots} cartes, dans l'ordre que tu veux.`
+            : `Les cartes que ${player.name} expose.`}
         </p>
         <div className="mt-6">
           {isMe ? (
-            <GarageEditor garage={garage} stacks={stacks} />
+            <GarageEditor garage={garage} stacks={stacks} slots={slots} />
           ) : garage.length > 0 ? (
             <ul className="grid grid-cols-2 gap-x-5 gap-y-8 panel p-6 sm:grid-cols-3 sm:p-10 lg:grid-cols-6">
               {garage.map((copy) => (
