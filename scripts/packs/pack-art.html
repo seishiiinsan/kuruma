@@ -1,0 +1,358 @@
+<!doctype html>
+<!--
+  Kuruma booster art generator. One template, twenty-one packs: same bag, seals,
+  wordmark, photo window, name plate and badge row; each pack only changes its
+  colour, its car photo (duotoned in that colour), its theme line and its perk.
+
+  How to regenerate:
+    1. Copy this file to public/__pack-art.html and add the dev-only save route
+       (see scripts/packs/README.md), run `next dev`.
+    2. Open http://localhost:3000/__pack-art.html, press "Tout enregistrer".
+    3. Remove both temporary files.
+-->
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Kuruma pack art</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@800;900&family=Russo+One&display=block" rel="stylesheet" />
+<style>
+  body { margin: 0; padding: 24px; background: #1b1550; color: #fff; font: 600 14px system-ui; }
+  #shelf { display: flex; flex-wrap: wrap; gap: 16px; }
+  canvas { width: 176px; height: auto; }
+  button { font: inherit; padding: 8px 14px; margin-bottom: 16px; }
+</style>
+</head>
+<body>
+<button id="save" type="button">Tout enregistrer</button>
+<span id="status"></span>
+<div id="shelf"></div>
+<script>
+const W = 1056, H = 1876;
+const PHOTO_BASE = "https://guxlhalhyxhbxihofdeh.supabase.co/storage/v1/object/public/cars/cars/";
+
+/* Must match lib/packs.ts (id, name, colour). Photo, theme and perk are art only. */
+const PACKS = [
+  { id: "edition-01", name: "Édition 01", color: "#ff6b1a", photo: "lancia-stratos", theme: "Toutes les cultures", perk: ["ÉQUILIBRÉ", "à parts égales"], cards: 5 },
+  { id: "nuit-jdm", name: "Nuit JDM", color: "#7a3cff", photo: "nissan-skyline-gt-r", theme: "JDM · Kei cars", perk: ["80 %", "du thème"], cards: 5 },
+  { id: "grand-tourisme", name: "Grand Tourisme", color: "#1f6fff", photo: "porsche-911", theme: "Sportives · GT", perk: ["80 %", "du thème"], cards: 5 },
+  { id: "garage-classique", name: "Garage Classique", color: "#d94a7a", photo: "citroen-ds", theme: "Classiques · Youngtimers", perk: ["80 %", "du thème"], cards: 5 },
+  { id: "reve-americain", name: "Rêve américain", color: "#e3262f", photo: "dodge-charger", theme: "Américaines · Muscle", perk: ["80 %", "du thème"], cards: 5 },
+  { id: "hors-piste", name: "Hors-piste", color: "#4f9a12", photo: "toyota-land-cruiser", theme: "4×4 · Tout-terrain", perk: ["80 %", "du thème"], cards: 5 },
+  { id: "tour-du-monde", name: "Tour du monde", color: "#0fa89c", photo: "trabant-601", theme: "Est · Corée · Kei · Monde", perk: ["80 %", "du thème"], cards: 6, premium: true },
+  { id: "prestige", name: "Prestige", color: "#2a2540", trim: "#e2c27a", photo: "aston-martin-db5", theme: "Luxe · GT", perk: ["ÉPIQUE+", "garantie"], cards: 5, premium: true },
+  { id: "legende", name: "Légende", color: "#e9a20c", photo: "mclaren-f1", theme: "Le haut du catalogue", perk: ["LÉGENDAIRE", "garantie"], cards: 3, premium: true, holo: true },
+  { id: "annees-80", name: "Années 80", color: "#ff3d9a", photo: "toyota-ae86", theme: "Lancées de 1980 à 1989", perk: ["80 %", "du thème"], cards: 5, weekend: true },
+  { id: "rideau-de-fer", name: "Rideau de fer", color: "#8d99a8", photo: "gaz-21", theme: "Bloc de l'Est", perk: ["80 %", "du thème"], cards: 5, weekend: true },
+  { id: "annees-90", name: "Années 90", color: "#16c6e8", photo: "subaru-impreza", theme: "Lancées de 1990 à 1999", perk: ["80 %", "du thème"], cards: 5, weekend: true },
+  { id: "salon-de-luxe", name: "Salon de luxe", color: "#a3244a", photo: "rolls-royce-phantom-2017", theme: "Luxe · Prestige", perk: ["80 %", "du thème"], cards: 5, weekend: true },
+  { id: "annees-2000", name: "Années 2000", color: "#a8c418", photo: "bentley-continental-gt", theme: "Lancées de 2000 à 2009", perk: ["80 %", "du thème"], cards: 5, weekend: true },
+  { id: "tokyo-auto-salon", name: "Tokyo Auto Salon", color: "#ff2e63", photo: "mazda-rx-7", theme: "JDM · Kei cars", perk: ["80 %", "du thème"], cards: 5, salon: true },
+  { id: "retromobile", name: "Rétromobile", color: "#c8873a", photo: "bugatti-type-35", theme: "Lancées avant 1970", perk: ["80 %", "du thème"], cards: 5, salon: true },
+  { id: "salon-de-geneve", name: "Salon de Genève", color: "#4a6b8a", photo: "lamborghini-countach", theme: "GT · Prestige", perk: ["80 %", "du thème"], cards: 5, salon: true },
+  { id: "le-mans", name: "24 Heures du Mans", color: "#ffd400", photo: "jaguar-c-type", theme: "Grand tourisme", perk: ["80 %", "du thème"], cards: 5, salon: true },
+  { id: "goodwood", name: "Goodwood", color: "#1f8a4c", photo: "ferrari-f40", theme: "Sportives", perk: ["80 %", "du thème"], cards: 5, salon: true },
+  { id: "mondial-de-l-auto", name: "Mondial de l'Auto", color: "#0a5bd8", photo: "alpine-a110", theme: "Voitures françaises", perk: ["80 %", "du thème"], cards: 5, salon: true },
+  { id: "sema-show", name: "SEMA Show", color: "#ff8a00", photo: "chevrolet-camaro-premiere-generation", theme: "Américaines · Muscle", perk: ["80 %", "du thème"], cards: 5, salon: true },
+];
+
+const hex = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+const mix = (a, b, t) => a.map((v, i) => Math.round(v + (b[i] - v) * t));
+const css = (c, a = 1) => `rgba(${c[0]},${c[1]},${c[2]},${a})`;
+const WHITE = [255, 255, 255], BLACK = [12, 8, 40];
+
+const SEAL = 140;           // top and bottom heat seals, 7.5 % of the height
+const TOOTH = 22;           // zigzag pitch of the cut edge
+
+function bagPath(ctx) {
+  ctx.beginPath();
+  ctx.moveTo(0, 12);
+  for (let x = 0; x <= W; x += TOOTH) ctx.lineTo(x + TOOTH / 2, 0), ctx.lineTo(Math.min(x + TOOTH, W), 12);
+  ctx.lineTo(W, H - 12);
+  for (let x = W; x >= 0; x -= TOOTH) ctx.lineTo(x - TOOTH / 2, H), ctx.lineTo(Math.max(x - TOOTH, 0), H - 12);
+  ctx.closePath();
+}
+
+function loadPhoto(slug) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = PHOTO_BASE + slug + ".webp";
+  });
+}
+
+/** The car, mapped from the pack's deepest shade to a pale tint, with a little of its own colour kept. */
+function duotone(img, w, h, dark, light) {
+  const c = document.createElement("canvas");
+  c.width = w; c.height = h;
+  const g = c.getContext("2d");
+  const s = Math.max(w / img.width, h / img.height);
+  g.drawImage(img, (w - img.width * s) / 2, (h - img.height * s) / 2, img.width * s, img.height * s);
+  const data = g.getImageData(0, 0, w, h);
+  const p = data.data;
+  for (let i = 0; i < p.length; i += 4) {
+    const l = (0.299 * p[i] + 0.587 * p[i + 1] + 0.114 * p[i + 2]) / 255;
+    const t = Math.min(1, Math.max(0, (l - 0.12) / 0.78));
+    const k = t * t * (3 - 2 * t);
+    for (let j = 0; j < 3; j++) {
+      const d = dark[j] + (light[j] - dark[j]) * k;
+      p[i + j] = d * 0.72 + p[i + j] * 0.28;
+    }
+  }
+  g.putImageData(data, 0, 0);
+  return c;
+}
+
+function fitText(ctx, text, max, size, font) {
+  let s = size;
+  do { ctx.font = `${s}px ${font}`; s -= 2; } while (ctx.measureText(text).width > max && s > 20);
+  return s + 2;
+}
+
+function spaced(ctx, text, x, y, spacing) {
+  ctx.letterSpacing = `${spacing}px`;
+  ctx.fillText(text, x + spacing / 2, y);
+  ctx.letterSpacing = "0px";
+}
+
+async function draw(pack) {
+  const canvas = document.createElement("canvas");
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext("2d");
+  const base = hex(pack.color);
+  const trim = pack.trim ? hex(pack.trim) : WHITE;
+  const deep = mix(base, BLACK, 0.62);
+  const light = mix(base, WHITE, 0.9);
+
+  ctx.save();
+  bagPath(ctx);
+  ctx.clip();
+
+  // Body: the pack colour, lit from the top.
+  let g = ctx.createLinearGradient(0, 0, 0, H);
+  g.addColorStop(0, css(mix(base, WHITE, 0.18)));
+  g.addColorStop(0.45, css(base));
+  g.addColorStop(1, css(mix(base, BLACK, 0.5)));
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, W, H);
+
+  // Sunburst behind the photo.
+  const cx = W / 2, cy = 760;
+  ctx.save();
+  ctx.translate(cx, cy);
+  for (let i = 0; i < 32; i++) {
+    ctx.rotate((Math.PI * 2) / 32);
+    if (i % 2) continue;
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(-90, -1800);
+    ctx.lineTo(90, -1800);
+    ctx.closePath();
+    ctx.fillStyle = pack.holo ? `hsla(${(i * 360) / 32},100%,80%,0.16)` : css(trim, pack.trim ? 0.1 : 0.07);
+    ctx.fill();
+  }
+  ctx.restore();
+
+  // Kuruma diamond lattice, the shared signature of every pack.
+  ctx.save();
+  ctx.strokeStyle = css(WHITE, 0.07);
+  ctx.lineWidth = 2;
+  for (let d = -H; d < W + H; d += 44) {
+    ctx.beginPath(); ctx.moveTo(d, 0); ctx.lineTo(d + H, H); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(d, H); ctx.lineTo(d + H, 0); ctx.stroke();
+  }
+  ctx.restore();
+
+  // Vignette toward the bottom so the name plate reads.
+  g = ctx.createLinearGradient(0, 1100, 0, H);
+  g.addColorStop(0, css(deep, 0));
+  g.addColorStop(1, css(deep, 0.65));
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 1100, W, H - 1100);
+
+  // Wordmark.
+  ctx.textAlign = "center";
+  ctx.textBaseline = "alphabetic";
+  ctx.fillStyle = css(WHITE, 0.9);
+  ctx.font = "900 30px Nunito";
+  spaced(ctx, pack.premium ? "BOOSTER PREMIUM" : pack.weekend ? "BOOSTER DU WEEK-END" : pack.salon ? "BOOSTER DE SALON" : "BOOSTER", W / 2, 214, 9);
+  ctx.font = "112px 'Russo One'";
+  ctx.lineJoin = "round";
+  ctx.lineWidth = 14;
+  ctx.strokeStyle = css(deep);
+  ctx.shadowColor = css(BLACK, 0.45);
+  ctx.shadowOffsetY = 8;
+  ctx.strokeText("kuruma", W / 2, 322);
+  ctx.shadowColor = "transparent";
+  ctx.fillStyle = css(trim);
+  ctx.fillText("kuruma", W / 2, 322);
+
+  // Photo window: a slanted frame, the car duotoned in the pack colour.
+  const top = 380, bottom = 1090, left = 74, right = W - 74, slant = 64;
+  const frame = () => {
+    ctx.beginPath();
+    ctx.moveTo(left + slant, top);
+    ctx.lineTo(right, top);
+    ctx.lineTo(right - slant, bottom);
+    ctx.lineTo(left, bottom);
+    ctx.closePath();
+  };
+  ctx.save();
+  ctx.shadowColor = css(BLACK, 0.5);
+  ctx.shadowBlur = 40;
+  ctx.shadowOffsetY = 18;
+  frame();
+  ctx.fillStyle = css(trim);
+  ctx.fill();
+  ctx.restore();
+  ctx.save();
+  ctx.translate(0, 0);
+  ctx.beginPath();
+  const inset = 14;
+  ctx.moveTo(left + slant + inset * 1.1, top + inset);
+  ctx.lineTo(right - inset * 0.9, top + inset);
+  ctx.lineTo(right - slant - inset * 1.1, bottom - inset);
+  ctx.lineTo(left + inset * 0.9, bottom - inset);
+  ctx.closePath();
+  ctx.clip();
+  try {
+    const photo = await loadPhoto(pack.photo);
+    ctx.drawImage(duotone(photo, right - left, bottom - top, deep, light), left, top);
+  } catch {
+    ctx.fillStyle = css(deep);
+    ctx.fillRect(left, top, right - left, bottom - top);
+  }
+  g = ctx.createLinearGradient(0, top, 0, bottom);
+  g.addColorStop(0.55, css(deep, 0));
+  g.addColorStop(1, css(deep, 0.55));
+  ctx.fillStyle = g;
+  ctx.fillRect(left, top, right - left, bottom - top);
+  if (pack.holo) {
+    g = ctx.createLinearGradient(left, top, right, bottom);
+    ["#ff8fcf", "#ffd36e", "#9dffcb", "#86ceff", "#c49bff"].forEach((c, i, a) => g.addColorStop(i / (a.length - 1), c));
+    ctx.globalCompositeOperation = "soft-light";
+    ctx.fillStyle = g;
+    ctx.fillRect(left, top, right - left, bottom - top);
+    ctx.globalCompositeOperation = "source-over";
+  }
+  ctx.restore();
+
+  // Name plate.
+  const name = pack.name.toUpperCase();
+  const size = fitText(ctx, name, W - 150, 132, "'Russo One'");
+  ctx.font = `${size}px 'Russo One'`;
+  ctx.lineWidth = 18;
+  ctx.strokeStyle = css(deep);
+  ctx.shadowColor = css(BLACK, 0.5);
+  ctx.shadowOffsetY = 10;
+  ctx.strokeText(name, W / 2, 1250);
+  ctx.shadowColor = "transparent";
+  ctx.fillStyle = css(WHITE);
+  ctx.fillText(name, W / 2, 1250);
+
+  ctx.font = "900 40px Nunito";
+  ctx.fillStyle = css(pack.trim ? trim : mix(base, WHITE, 0.7));
+  spaced(ctx, pack.theme.toUpperCase(), W / 2, 1326, 5);
+
+  // Badge row: card count on the left, the pack's perk on the right.
+  const by = 1560;
+  ctx.save();
+  ctx.shadowColor = css(BLACK, 0.45);
+  ctx.shadowBlur = 24;
+  ctx.shadowOffsetY = 10;
+  ctx.beginPath();
+  ctx.arc(232, by, 118, 0, Math.PI * 2);
+  ctx.fillStyle = css(trim);
+  ctx.fill();
+  ctx.restore();
+  ctx.beginPath();
+  ctx.arc(232, by, 100, 0, Math.PI * 2);
+  ctx.lineWidth = 6;
+  ctx.strokeStyle = css(base, 0.35);
+  ctx.stroke();
+  ctx.fillStyle = css(pack.trim ? BLACK : mix(base, BLACK, 0.25));
+  ctx.font = "128px 'Russo One'";
+  ctx.fillText(String(pack.cards), 232, by + 34);
+  ctx.font = "900 26px Nunito";
+  spaced(ctx, "CARTES", 232, by + 78, 4);
+
+  const px = 392, pw = W - 74 - px, ph = 196, py = by - ph / 2;
+  ctx.beginPath();
+  ctx.roundRect(px, py, pw, ph, 36);
+  ctx.fillStyle = css(BLACK, 0.32);
+  ctx.fill();
+  ctx.lineWidth = 4;
+  ctx.strokeStyle = css(trim, 0.35);
+  ctx.stroke();
+  ctx.textAlign = "center";
+  ctx.fillStyle = css(pack.trim || pack.holo ? trim : WHITE);
+  const perkSize = fitText(ctx, pack.perk[0], pw - 70, 96, "'Russo One'");
+  ctx.font = `${perkSize}px 'Russo One'`;
+  ctx.fillText(pack.perk[0], px + pw / 2, by + 14);
+  ctx.font = "900 40px Nunito";
+  ctx.fillStyle = css(WHITE, 0.82);
+  ctx.fillText(pack.perk[1], px + pw / 2, by + 66);
+
+  // Premium trim: a gold (or holo) rule inside the bag edge.
+  if (pack.premium) {
+    ctx.lineWidth = 10;
+    if (pack.holo) {
+      g = ctx.createLinearGradient(0, 0, W, H);
+      ["#ff8fcf", "#ffd36e", "#9dffcb", "#86ceff", "#c49bff", "#ff8fcf"].forEach((c, i, a) => g.addColorStop(i / (a.length - 1), c));
+      ctx.strokeStyle = g;
+    } else {
+      g = ctx.createLinearGradient(0, 0, W, H);
+      g.addColorStop(0, "#fff1c1"); g.addColorStop(0.35, "#e2b04a"); g.addColorStop(0.65, "#fff3cf"); g.addColorStop(1, "#c8901c");
+      ctx.strokeStyle = g;
+    }
+    ctx.beginPath();
+    ctx.roundRect(30, SEAL + 22, W - 60, H - 2 * SEAL - 44, 26);
+    ctx.stroke();
+  }
+
+  // Heat seals: crimped foil, neutral grey so the 3D foil shader reads them as metal.
+  for (const y0 of [0, H - SEAL]) {
+    g = ctx.createLinearGradient(0, y0, 0, y0 + SEAL);
+    g.addColorStop(0, "#c3c6d1"); g.addColorStop(0.45, "#eef0f5"); g.addColorStop(1, "#a6aabb");
+    ctx.fillStyle = g;
+    ctx.fillRect(0, y0, W, SEAL);
+    for (let x = 4; x < W; x += 9) {
+      ctx.fillStyle = x % 18 < 9 ? "rgba(70,74,96,0.22)" : "rgba(255,255,255,0.5)";
+      ctx.fillRect(x, y0 + 18, 3, SEAL - 36);
+    }
+    ctx.fillStyle = css(mix(base, BLACK, 0.3), 0.55);
+    ctx.fillRect(0, y0 === 0 ? SEAL - 6 : y0, W, 6);
+  }
+
+  ctx.restore();
+  return canvas;
+}
+
+const shelf = document.getElementById("shelf");
+const canvases = {};
+(async () => {
+  await document.fonts.load("112px 'Russo One'");
+  await document.fonts.load("900 40px Nunito");
+  for (const pack of PACKS) {
+    const c = await draw(pack);
+    canvases[pack.id] = c;
+    shelf.append(c);
+  }
+  window.__packArtReady = true;
+})();
+
+document.getElementById("save").onclick = async () => {
+  const status = document.getElementById("status");
+  for (const [id, c] of Object.entries(canvases)) {
+    const blob = await new Promise((r) => c.toBlob(r, "image/webp", 0.9));
+    const res = await fetch(`/api/dev-pack-art?id=${id}`, { method: "POST", body: blob });
+    status.textContent = `${id}: ${res.status}`;
+  }
+  status.textContent = "Terminé";
+};
+</script>
+</body>
+</html>
