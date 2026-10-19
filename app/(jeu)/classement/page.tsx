@@ -1,12 +1,13 @@
-import { Suspense } from "react";
+import { Suspense, type ReactNode } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { TIER_ORDER, TIERS } from "@/lib/cards";
 import { getLeaderboard, getViewer, type Standing } from "@/lib/game";
+import { getFriends } from "@/lib/friends";
 import { Avatar } from "@/components/avatar";
 import { BadgeRow, FramedAvatar, PlayerTitle } from "@/components/cosmetics";
 import { RarityDiamonds } from "@/components/rarity-diamonds";
-import { EmptyState, PageHeader, buttonPrimary, formatScore } from "@/components/game/ui";
+import { EmptyState, PageHeader, buttonGhost, buttonPrimary, formatScore } from "@/components/game/ui";
 
 export const metadata: Metadata = { title: "Classement — Kuruma" };
 
@@ -62,13 +63,96 @@ function Row({ standing, isMe }: { standing: Standing; isMe: boolean }) {
   );
 }
 
-async function Board() {
-  const [viewer, standings] = await Promise.all([getViewer(), getLeaderboard(50)]);
+type Search = { vue?: string };
+
+/** "Tous" or "Amis": the whole board, or the viewer among their friends. */
+function Tabs({ friendsView }: { friendsView: boolean }) {
+  const tab = (href: string, label: string, active: boolean) => (
+    <Link
+      href={href}
+      aria-current={active ? "page" : undefined}
+      className={`rounded-full px-4 py-1.5 text-sm font-extrabold transition-colors ${
+        active ? "bg-accent text-accent-ink" : "text-muted hover:text-ink"
+      }`}
+    >
+      {label}
+    </Link>
+  );
+  return (
+    <nav aria-label="Classements" className="mb-6 inline-flex gap-1 rounded-full bg-surface-lo p-1">
+      {tab("/classement", "Tous", !friendsView)}
+      {tab("/classement?vue=amis", "Amis", friendsView)}
+    </nav>
+  );
+}
+
+async function Board({ searchParams }: { searchParams: Promise<Search> }) {
+  const viewer = await getViewer();
+  const friendsView = Boolean(viewer) && (await searchParams).vue === "amis";
+  return (
+    <>
+      {viewer && <Tabs friendsView={friendsView} />}
+      {friendsView && viewer ? <FriendsBoard viewerId={viewer.id} /> : <GlobalBoard viewerId={viewer?.id} />}
+    </>
+  );
+}
+
+/** The viewer and their friends, ranked among themselves. */
+async function FriendsBoard({ viewerId }: { viewerId: string }) {
+  const { friends } = await getFriends(viewerId);
+  if (friends.length === 0) {
+    return (
+      <EmptyState
+        title="Pas encore d'amis à affronter."
+        action={
+          <Link href="/classement" className={buttonGhost}>
+            Voir le classement de tous les joueurs
+          </Link>
+        }
+      >
+        Ajoute des joueurs en ami depuis leur profil : vous serez classés entre vous ici.
+      </EmptyState>
+    );
+  }
+  const ids = new Set([viewerId, ...friends.map((f) => f.id)]);
+  const standings = (await getLeaderboard(1, [...ids])).filter((s) => ids.has(s.id));
+  // Ranks among friends, ties sharing a rank like the global board.
+  const ranked = standings.map((s) => ({ ...s, rank: 1 + standings.filter((o) => o.rank < s.rank).length }));
+  const unranked = friends.filter((f) => !standings.some((s) => s.id === f.id));
+  return (
+    <Table
+      standings={ranked}
+      viewerId={viewerId}
+      footer={
+        <>
+          {!standings.some((s) => s.id === viewerId) && <NotRanked />}
+          {unranked.length > 0 && (
+            <p className="border-t border-white/10 px-4 py-3 text-sm text-muted">
+              Pas encore classés : {unranked.map((f) => f.name).join(", ")}.
+            </p>
+          )}
+        </>
+      }
+    />
+  );
+}
+
+function NotRanked() {
+  return (
+    <p className="border-t border-white/10 px-4 py-3 text-sm text-muted">
+      Tu n&apos;es pas encore classé :{" "}
+      <Link href="/boosters" className="font-semibold text-ink underline underline-offset-4">
+        ouvre un pack
+      </Link>{" "}
+      pour entrer au classement.
+    </p>
+  );
+}
+
+async function GlobalBoard({ viewerId }: { viewerId?: string }) {
+  const standings = await getLeaderboard(50);
   const top = standings.filter((s) => s.rank <= 50);
-  const me = standings.find((s) => s.id === viewer?.id);
-  const meOutsideTop = me && me.rank > 50;
-  // Steps only make sense once three players can stand on them.
-  const podium = top.length >= 3;
+  const me = standings.find((s) => s.id === viewerId);
 
   if (top.length === 0) {
     return (
@@ -86,9 +170,33 @@ async function Board() {
   }
 
   return (
+    <Table
+      standings={top}
+      viewerId={viewerId}
+      footer={viewerId && !me && <NotRanked />}
+      after={me && me.rank > 50 ? me : undefined}
+    />
+  );
+}
+
+/** Podium for the top three, then the rows; `after` is the viewer, far below. */
+function Table({
+  standings: top,
+  viewerId,
+  footer,
+  after: meOutsideTop,
+}: {
+  standings: Standing[];
+  viewerId?: string;
+  footer?: ReactNode;
+  after?: Standing;
+}) {
+  // Steps only make sense once three players can stand on them.
+  const podium = top.length >= 3;
+  return (
     <div className="flex flex-col gap-6">
-      {podium && <Podium standings={top.slice(0, 3)} viewerId={viewer?.id} />}
-      {(!podium || top.length > 3 || meOutsideTop || (viewer && !me)) && (
+      {podium && <Podium standings={top.slice(0, 3)} viewerId={viewerId} />}
+      {(!podium || top.length > 3 || meOutsideTop || footer) && (
     <div className="panel overflow-hidden">
       <div className={`${rowClass} border-b border-white/10 text-xs font-black uppercase tracking-wider text-muted`}>
         <span>#</span>
@@ -99,26 +207,18 @@ async function Board() {
       </div>
       <ol className="divide-y divide-white/10">
         {top.slice(podium ? 3 : 0).map((standing) => (
-          <Row key={standing.id} standing={standing} isMe={standing.id === viewer?.id} />
+          <Row key={standing.id} standing={standing} isMe={standing.id === viewerId} />
         ))}
         {meOutsideTop && (
           <>
             <li className="px-4 py-1.5 text-center text-muted" aria-hidden>
               …
             </li>
-            <Row standing={me} isMe />
+            <Row standing={meOutsideTop} isMe />
           </>
         )}
       </ol>
-      {viewer && !me && (
-        <p className="border-t border-white/10 px-4 py-3 text-sm text-muted">
-          Tu n&apos;es pas encore classé :{" "}
-          <Link href="/boosters" className="font-semibold text-ink underline underline-offset-4">
-            ouvre un pack
-          </Link>{" "}
-          pour entrer au classement.
-        </p>
-      )}
+      {footer}
     </div>
       )}
     </div>
@@ -166,7 +266,7 @@ function Podium({ standings, viewerId }: { standings: Standing[]; viewerId?: str
   );
 }
 
-export default function LeaderboardPage() {
+export default function LeaderboardPage({ searchParams }: PageProps<"/classement">) {
   return (
     <>
       <PageHeader
@@ -191,7 +291,7 @@ export default function LeaderboardPage() {
         ))}
       </ul>
       <Suspense fallback={<div className="h-96 panel-sunken animate-pulse" />}>
-        <Board />
+        <Board searchParams={searchParams as Promise<Search>} />
       </Suspense>
     </>
   );

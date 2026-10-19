@@ -24,7 +24,8 @@ async function Composer({ searchParams }: { searchParams: Promise<Search> }) {
 
   if (!partner || partner.id === viewer.id) {
     // Friends only here; any profile still offers a trade with its owner.
-    const [{ friends, received }, board] = await Promise.all([getFriends(viewer.id), getLeaderboard(1000)]);
+    const { friends, received } = await getFriends(viewer.id);
+    const board = await getLeaderboard(1, friends.map((f) => f.id));
     const standings = new Map(board.map((s) => [s.id, s]));
     const players: Standing[] = friends.map(
       (f) => standings.get(f.id) ?? { ...f, rank: 0, score: 0, distinctCards: 0, copies: 0, series: 0 },

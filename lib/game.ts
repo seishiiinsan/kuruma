@@ -335,9 +335,13 @@ export type Standing = PlayerRef & {
   series: number;
 };
 
-export async function getLeaderboard(limit = 50): Promise<Standing[]> {
+/** The top `limit` players, plus the viewer and the players in `include` wherever they rank. */
+export async function getLeaderboard(limit = 50, include: string[] = []): Promise<Standing[]> {
   const supabase = await client();
-  const { data } = await supabase.rpc("leaderboard", { p_limit: limit });
+  const { data } = await supabase.rpc("leaderboard", {
+    p_limit: limit,
+    ...(include.length > 0 && { p_with: include }),
+  });
   const looks = await getPlayersByIds((data ?? []).map((row) => row.user_id));
   return (data ?? []).map((row) => ({
     id: row.user_id,

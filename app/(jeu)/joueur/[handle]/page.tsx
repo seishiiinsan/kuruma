@@ -2,7 +2,7 @@ import { Suspense, type ReactNode } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeftRight, Palette, Settings, ShieldCheck } from "lucide-react";
+import { ArrowLeftRight, Palette, Settings, ShieldCheck, Trophy } from "lucide-react";
 import { CATALOGUE_SIZE } from "@/lib/catalog";
 import { byRarity, TIERS, TIER_ORDER } from "@/lib/cards";
 import {
@@ -15,7 +15,7 @@ import {
   getPlayerByHandle,
   getViewer,
 } from "@/lib/game";
-import { getFriendship } from "@/lib/friends";
+import { getFriends, getFriendship, getPlayerFriends } from "@/lib/friends";
 import { garageSlots, gradeOf } from "@/lib/permit";
 import { seriesById } from "@/lib/series";
 import { toStacks } from "@/lib/stacks";
@@ -24,6 +24,7 @@ import { BadgeRow, FramedAvatar, PlayerTitle, bannerPaint } from "@/components/c
 import { RarityDiamonds } from "@/components/rarity-diamonds";
 import { TradingCard } from "@/components/trading-card";
 import { FriendButton } from "@/components/game/friend-button";
+import { FriendList } from "@/components/game/friend-list";
 import { GarageEditor } from "@/components/game/garage-editor";
 import { LevelDisc, PermitPanel, PermitProgress } from "@/components/game/permit";
 import { ShowMore } from "@/components/game/show-more";
@@ -61,20 +62,23 @@ async function PlayerProfile({ params }: { params: Promise<{ handle: string }> }
   const player = await getPlayerByHandle((await params).handle);
   if (!player) notFound();
 
-  const [viewer, account, copies, garage, board, claims] = await Promise.all([
+  const [viewer, account, copies, garage, board, claims, friends] = await Promise.all([
     getViewer(),
     getAccount(),
     getCopiesOf(player.id),
     getGarage(player.id),
-    getLeaderboard(1000),
+    getLeaderboard(1, [player.id]),
     getClaims(player.id),
+    getPlayerFriends(player.id),
   ]);
   const completed = [...claims.keys()].flatMap((id) => seriesById(id) ?? []);
   const isMe = viewer?.id === player.id;
-  const [permit, friendship] = await Promise.all([
+  const [permit, friendship, mine] = await Promise.all([
     isMe ? getMyPermit() : null,
     viewer && !isMe ? getFriendship(viewer.id, player.id) : ("none" as const),
+    viewer && !isMe ? getFriends(viewer.id) : null,
   ]);
+  const mutual = new Set(mine?.friends.filter((f) => friends.some((g) => g.id === f.id)).map((f) => f.id));
   const level = permit?.level ?? player.level;
   const grade = gradeOf(level);
   const slots = garageSlots(level);
@@ -148,6 +152,11 @@ async function PlayerProfile({ params }: { params: Promise<{ handle: string }> }
                 <span className="inline-block max-w-full truncate align-bottom">@{player.handle}</span>
                 <span className="hidden sm:inline"> · collectionne depuis {formatMonthYear(player.memberSince)}</span>
               </p>
+              {mutual.size > 0 && (
+                <a href="#amis" className={`mt-1 inline-block text-sm font-bold hover:underline ${banner ? "text-ink" : "text-accent"}`}>
+                  {mutual.size} {mutual.size > 1 ? "amis" : "ami"} en commun
+                </a>
+              )}
               <BadgeRow look={player.look} size={30} className="mt-3 flex-wrap" />
             </div>
           </div>
@@ -227,6 +236,52 @@ async function PlayerProfile({ params }: { params: Promise<{ handle: string }> }
           )}
         </div>
       </section>
+
+      {/* Who they play with; signed-out visitors don't see friend lists. */}
+      {viewer && (
+        <section aria-labelledby="amis" className="mt-12 sm:mt-14">
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <SectionTitle
+              id="amis"
+              count={friends.length > 0 ? formatScore(friends.length) : undefined}
+              detail={
+                isMe
+                  ? "Les joueurs avec qui tu échanges. Ajoute-en depuis leur profil."
+                  : mutual.size > 0
+                    ? `Dont ${mutual.size} en commun avec toi, entourés en jaune.`
+                    : undefined
+              }
+            >
+              Amis
+            </SectionTitle>
+            {isMe && friends.length > 0 && (
+              <Link href="/classement?vue=amis" className="btn btn-sm">
+                <Trophy className="size-4" aria-hidden />
+                Classement entre amis
+              </Link>
+            )}
+          </div>
+          <div className="mt-5">
+            {friends.length > 0 ? (
+              <FriendList friends={friends} mutual={mutual} />
+            ) : isMe ? (
+              <EmptyState
+                title="Pas encore d'amis."
+                action={
+                  <Link href="/classement" className={buttonGhost}>
+                    <Trophy className="size-4" aria-hidden />
+                    Trouver des joueurs au classement
+                  </Link>
+                }
+              >
+                Ouvre le profil d&apos;un joueur et ajoute-le : vous pourrez échanger et vous comparer.
+              </EmptyState>
+            ) : (
+              <p className="text-sm text-muted">{player.name} n&apos;a pas encore d&apos;amis.</p>
+            )}
+          </div>
+        </section>
+      )}
 
       {/* Progression, for the player's own eyes only. */}
       {permit && (

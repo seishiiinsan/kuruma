@@ -39,3 +39,12 @@ export async function getFriends(viewerId: string): Promise<{ friends: PlayerRef
     ids.flatMap((id) => players.get(id) ?? []).sort((a, b) => a.name.localeCompare(b.name, "fr"));
   return { friends: pick(friendIds), received: pick(receivedIds) };
 }
+
+/** A player's friends, for their profile; empty for signed-out visitors. */
+export async function getPlayerFriends(playerId: string): Promise<PlayerRef[]> {
+  await connection();
+  const supabase = await createSupabaseServerClient();
+  const { data } = await supabase.rpc("player_friends", { p_player: playerId });
+  const players = await getPlayersByIds(data ?? []);
+  return [...players.values()].sort((a, b) => a.name.localeCompare(b.name, "fr"));
+}

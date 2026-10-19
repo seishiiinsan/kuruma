@@ -1136,7 +1136,7 @@ export type Database = {
       expire_listings: { Args: never; Returns: undefined }
       export_my_data: { Args: never; Returns: Json }
       leaderboard: {
-        Args: { p_limit?: number }
+        Args: { p_limit?: number; p_with?: string[] }
         Returns: {
           avatar_url: string
           copies: number
@@ -1273,6 +1273,7 @@ export type Database = {
         }[]
       }
       paris_today: { Args: never; Returns: string }
+      player_friends: { Args: { p_player: string }; Returns: string[] }
       player_metrics: { Args: { p_user: string }; Returns: Json }
       respond_trade: {
         Args: { p_accept: boolean; p_trade: string }

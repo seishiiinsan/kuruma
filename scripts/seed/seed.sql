@@ -991,6 +991,31 @@ limit 3;
 update public.notifications set read_at = created_at + interval '30 minutes'
 where user_id = (select id from seed_me) and kind like 'wish_%' and created_at < now() - interval '2 days';
 
+/* ---------- Amis ---------- */
+-- Le compte principal a 8 amis et 2 demandes reçues ; les joueurs factices
+-- sont amis entre eux, de quoi voir des amis en commun sur leurs profils.
+
+create temp table seed_fakes on commit drop as
+select id, row_number() over (order by email) as n
+from auth.users where email like '%@seed.kuruma.test';
+
+insert into public.friendships (requester_id, addressee_id, status, created_at, accepted_at)
+select f.id, (select id from seed_me), 'accepted', now() - (f.n || ' days')::interval, now() - (f.n || ' days')::interval
+from seed_fakes f where f.n <= 8;
+
+insert into public.friendships (requester_id, addressee_id, created_at)
+select f.id, (select id from seed_me), now() - (f.n || ' hours')::interval
+from seed_fakes f where f.n in (9, 10);
+
+insert into public.notifications (user_id, kind, actor_id, created_at)
+select (select id from seed_me), 'friend_request', f.id, now() - (f.n || ' hours')::interval
+from seed_fakes f where f.n in (9, 10);
+
+-- Chaque joueur factice est ami avec les trois suivants.
+insert into public.friendships (requester_id, addressee_id, status, accepted_at)
+select a.id, b.id, 'accepted', now()
+from seed_fakes a join seed_fakes b on b.n between a.n + 1 and a.n + 3;
+
 commit;
 
 /* ---------- Bilan ---------- */
@@ -1005,5 +1030,6 @@ union all select 'ventes au marché', count(*)::text from public.market_sales
 union all select 'occasions en boutique', count(*)::text from public.shop_stock
 union all select 'achats boutique', count(*)::text from public.shop_purchases
 union all select 'souhaits', count(*)::text from public.wishes
+union all select 'amitiés', string_agg(status || ' ' || n, ', ') from (select status, count(*) n from public.friendships group by status) f
 union all select 'notifications du compte principal', count(*)::text from public.notifications where user_id = (select id from auth.users where email not like '%@seed.kuruma.test' order by created_at limit 1)
 union all select 'voitures épuisées', count(*)::text from public.cards where supply is not null and minted >= supply;
