@@ -32,6 +32,7 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
 
 # vercel
 .vercel
@@ -39,3 +40,19 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# photo cache for scripts/cars/photos.mjs
+/.cache
+
+# Supabase CLI local state
+/supabase/.temp
+
+# Impeccable review captures (regenerated, large)
+/.impeccable/review
+/.impeccable/config.local.json
+
+# Other Claude sessions' worktrees
+/.claude/worktrees
+
+# IDE
+/.idea
