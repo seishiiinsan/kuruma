@@ -66,6 +66,17 @@ function wishAlert(n: Notification) {
           </>
         ),
       };
+    case "friend_request":
+    case "friend_accepted":
+      return {
+        href: n.actor ? `/joueur/${n.actor.handle}` : "/echanges/nouveau",
+        text: (
+          <>
+            <strong className="font-extrabold text-ink">{n.actor?.name ?? "Un joueur"}</strong>{" "}
+            {n.kind === "friend_request" ? "veut devenir ton ami" : "a accepté ta demande d'ami"}
+          </>
+        ),
+      };
     case "permit_up": {
       const grade = GRADES.find((g) => g.level === n.level);
       return {

@@ -3,9 +3,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
-import { getCopiesOf, getLeaderboard, getPlayerByHandle, getViewer } from "@/lib/game";
+import { getCopiesOf, getLeaderboard, getPlayerByHandle, getViewer, type Standing } from "@/lib/game";
+import { getFriends } from "@/lib/friends";
 import { toStacks } from "@/lib/stacks";
-import { PlayerPicker } from "@/components/game/player-picker";
+import { FriendRequests, PlayerPicker } from "@/components/game/player-picker";
 import { TradeComposer } from "@/components/game/trade-composer";
 import { TrustNotice } from "@/components/game/trust-notice";
 import { PageHeader } from "@/components/game/ui";
@@ -22,13 +23,19 @@ async function Composer({ searchParams }: { searchParams: Promise<Search> }) {
   const partner = avec ? await getPlayerByHandle(avec) : null;
 
   if (!partner || partner.id === viewer.id) {
-    const players = (await getLeaderboard(200)).filter((p) => p.id !== viewer.id);
+    // Friends only here; any profile still offers a trade with its owner.
+    const [{ friends, received }, board] = await Promise.all([getFriends(viewer.id), getLeaderboard(1000)]);
+    const standings = new Map(board.map((s) => [s.id, s]));
+    const players: Standing[] = friends.map(
+      (f) => standings.get(f.id) ?? { ...f, rank: 0, score: 0, distinctCards: 0, copies: 0, series: 0 },
+    );
     return (
       <>
         <PageHeader
           title="Avec qui échanger ?"
-          description="Choisis un collectionneur pour voir ses cartes. Astuce : depuis la fiche d'une voiture, tu vois directement qui la possède."
+          description="Choisis un ami pour voir ses cartes. Pour échanger avec un autre joueur, passe par son profil : depuis la fiche d'une voiture, tu vois qui la possède."
         />
+        <FriendRequests players={received} />
         <PlayerPicker players={players} />
       </>
     );
