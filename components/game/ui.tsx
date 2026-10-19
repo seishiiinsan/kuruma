@@ -23,10 +23,24 @@ export function PageHeader({
 }
 
 /** Section heading inside a page: display face, smaller. */
-export function SectionTitle({ children, detail }: { children: ReactNode; detail?: ReactNode }) {
+export function SectionTitle({
+  children,
+  detail,
+  count,
+  id,
+}: {
+  children: ReactNode;
+  detail?: ReactNode;
+  /** A tally set in muted next to the title. */
+  count?: ReactNode;
+  id?: string;
+}) {
   return (
     <div>
-      <h2 className="title-drop font-display text-xl sm:text-2xl">{children}</h2>
+      <h2 id={id} className="title-drop font-display text-xl sm:text-2xl">
+        {children}
+        {count !== undefined && <span className="ml-2 text-muted tabular-nums">{count}</span>}
+      </h2>
       {detail && <p className="mt-1.5 max-w-2xl text-pretty text-sm text-muted">{detail}</p>}
     </div>
   );

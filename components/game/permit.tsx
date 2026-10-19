@@ -5,22 +5,42 @@ import { FramedAvatar } from "../cosmetics";
 
 const int = new Intl.NumberFormat("fr-FR");
 
-/** Grade and level next to a player's name, on any profile. */
-export function PermitChip({ level, className = "" }: { level: number; className?: string }) {
+/** The level as a disc pinned to a player's avatar, on any profile. */
+export function LevelDisc({ level, className = "" }: { level: number; className?: string }) {
   const grade = gradeOf(level);
   return (
     <span
-      className={`inline-flex items-center gap-1.5 rounded-full bg-bg-deep/70 py-1 pr-3 pl-1 text-sm font-extrabold ${className}`}
+      className={`grid h-9 min-w-9 place-items-center rounded-full px-1.5 font-display text-base text-bg-deep tabular-nums ring-4 ring-bg-deep shadow-[0_4px_8px_-2px_rgb(6_3_30/0.7)] ${className}`}
+      style={{ background: grade.tint }}
       title={`Permis : ${grade.name}, niveau ${level}`}
     >
-      <span
-        className="grid h-6 min-w-6 place-items-center rounded-full px-1.5 font-display text-xs text-bg-deep tabular-nums"
-        style={{ background: grade.tint }}
-      >
-        {level}
-      </span>
-      {grade.name}
+      <span aria-hidden>{level}</span>
+      <span className="sr-only">Niveau {level}</span>
     </span>
+  );
+}
+
+const progressOf = ({ xp, from, to }: Permit) =>
+  // The level never drops, so the experience can sit below its own level.
+  to === null ? 1 : Math.min(Math.max((xp - from) / (to - from), 0), 1);
+
+/** One-line XP gauge for the profile header, pointing to the full permit below. */
+export function PermitProgress({ permit, href, className = "" }: { permit: Permit; href: string; className?: string }) {
+  const { level, xp, from, to } = permit;
+  const grade = gradeOf(level);
+  return (
+    <a
+      href={href}
+      className={`group flex items-center gap-3 rounded-full bg-bg-deep/70 py-1.5 pr-4 pl-3 text-sm font-extrabold transition-colors hover:bg-bg-deep ${className}`}
+    >
+      <span className="shrink-0">{to === null ? "Niveau max" : `Niv. ${level + 1}`}</span>
+      <span aria-hidden className="h-2.5 flex-1 overflow-hidden rounded-full bg-surface-lo shadow-[inset_0_1px_3px_rgb(6_3_30/0.6)]">
+        <span className="block h-full rounded-full" style={{ width: `${progressOf(permit) * 100}%`, background: grade.tint }} />
+      </span>
+      <span className="shrink-0 text-xs text-muted tabular-nums group-hover:text-ink">
+        {to === null ? `${int.format(xp)} XP` : `${int.format(Math.max(xp, from))} / ${int.format(to)} XP`}
+      </span>
+    </a>
   );
 }
 
@@ -63,8 +83,7 @@ export function PermitPanel({ player, permit }: { player: Pick<PlayerRef, "name"
   const { level, xp, from, to } = permit;
   const grade = gradeOf(level);
   const next = nextGrade(level);
-  // The level never drops, so the experience can sit below its own level.
-  const done = to === null ? 1 : Math.min(Math.max((xp - from) / (to - from), 0), 1);
+  const done = progressOf(permit);
   const discount = shopDiscount(level);
 
   return (

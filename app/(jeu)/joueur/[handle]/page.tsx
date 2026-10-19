@@ -1,4 +1,4 @@
-import { Suspense } from "react";
+import { Suspense, type ReactNode } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -15,17 +15,20 @@ import {
   getPlayerByHandle,
   getViewer,
 } from "@/lib/game";
-import { garageSlots } from "@/lib/permit";
+import { getFriendship } from "@/lib/friends";
+import { garageSlots, gradeOf } from "@/lib/permit";
 import { seriesById } from "@/lib/series";
 import { toStacks } from "@/lib/stacks";
 import { formatMonthYear } from "@/lib/time";
 import { BadgeRow, FramedAvatar, PlayerTitle, bannerPaint } from "@/components/cosmetics";
 import { RarityDiamonds } from "@/components/rarity-diamonds";
 import { TradingCard } from "@/components/trading-card";
+import { FriendButton } from "@/components/game/friend-button";
 import { GarageEditor } from "@/components/game/garage-editor";
-import { PermitChip, PermitPanel } from "@/components/game/permit";
+import { LevelDisc, PermitPanel, PermitProgress } from "@/components/game/permit";
+import { ShowMore } from "@/components/game/show-more";
 import { ReportButton } from "@/components/game/report-button";
-import { EmptyState, buttonGhost, buttonInk, formatScore } from "@/components/game/ui";
+import { EmptyState, SectionTitle, Skeleton, buttonGhost, buttonInk, buttonPrimary, formatScore } from "@/components/game/ui";
 
 export async function generateMetadata({
   params,
@@ -44,11 +47,15 @@ export async function generateMetadata({
 
 export default function PlayerPage({ params }: PageProps<"/joueur/[handle]">) {
   return (
-    <Suspense fallback={<div className="size-22 animate-pulse rounded-full bg-surface-lo" />}>
+    <Suspense fallback={<Skeleton className="h-72 sm:h-64" />}>
       <PlayerProfile params={params} />
     </Suspense>
   );
 }
+
+/** Cards shown before the "show more" button, and the most the page ever lists. */
+const FIRST_CARDS = 24;
+const MAX_CARDS = 48;
 
 async function PlayerProfile({ params }: { params: Promise<{ handle: string }> }) {
   const player = await getPlayerByHandle((await params).handle);
@@ -64,8 +71,12 @@ async function PlayerProfile({ params }: { params: Promise<{ handle: string }> }
   ]);
   const completed = [...claims.keys()].flatMap((id) => seriesById(id) ?? []);
   const isMe = viewer?.id === player.id;
-  const permit = isMe ? await getMyPermit() : null;
+  const [permit, friendship] = await Promise.all([
+    isMe ? getMyPermit() : null,
+    viewer && !isMe ? getFriendship(viewer.id, player.id) : ("none" as const),
+  ]);
   const level = permit?.level ?? player.level;
+  const grade = gradeOf(level);
   const slots = garageSlots(level);
   const standing = board.find((s) => s.id === player.id);
   const stacks = toStacks(copies).sort(
@@ -74,95 +85,131 @@ async function PlayerProfile({ params }: { params: Promise<{ handle: string }> }
 
   const banner = bannerPaint(player.look);
 
-  const stats: [string, string][] = [
+  const stats: [string, ReactNode][] = [
     ["Classement", standing ? `#${standing.rank}` : "—"],
     ["Score", formatScore(standing?.score ?? 0)],
-    ["Voitures", `${stacks.length} / ${formatScore(CATALOGUE_SIZE)}`],
-    ["Exemplaires", formatScore(copies.length)],
+    [
+      "Voitures",
+      <>
+        {formatScore(stacks.length)}
+        <span className="ml-1 text-sm text-muted">/ {formatScore(CATALOGUE_SIZE)}</span>
+      </>,
+    ],
+    ["Séries terminées", formatScore(completed.length)],
   ];
+
+  const cardList = (list: typeof stacks) => (
+    <ul className="grid grid-cols-3 gap-x-3 gap-y-5 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8">
+      {list.map(({ card, copies }) => (
+        <li key={card.slug} className="relative">
+          <Link href={`/cartes/${card.slug}`} className="block">
+            <TradingCard card={card} serial={copies[0].serial} finish={copies[0].finish} interactive={false} className="w-full" />
+          </Link>
+          {copies.length > 1 && (
+            <span className="absolute -top-1.5 -right-1.5 z-10 rounded-full bg-accent px-1.5 py-0.5 text-[0.65rem] font-black text-accent-ink tabular-nums shadow-[0_2px_0_var(--accent-edge)]">
+              ×{copies.length}
+            </span>
+          )}
+        </li>
+      ))}
+    </ul>
+  );
+  const shown = stacks.slice(0, MAX_CARDS);
 
   return (
     <>
-      <div className="panel relative overflow-hidden p-5 sm:p-8" style={banner ? { background: banner } : undefined}>
-      {banner ? (
-        <div aria-hidden className="pointer-events-none absolute inset-0 bg-gradient-to-t from-bg-deep/85 via-bg-deep/30 to-transparent" />
-      ) : (
-        <div
-          aria-hidden
-          className="pointer-events-none absolute -top-24 -left-16 size-72 rounded-full bg-[radial-gradient(circle,rgb(255_191_46/0.25),transparent_70%)]"
-        />
-      )}
-      <div className="relative flex flex-col gap-6 sm:flex-row sm:items-center">
-        <FramedAvatar player={player} size={104} className="ring-4 ring-accent shadow-[var(--shadow-card)]" />
-        <div className="flex-1">
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-            <h1 className="title-drop font-display text-[2rem] leading-[1.05] sm:text-[2.75rem]">
-              {player.name}
-            </h1>
-            <BadgeRow look={player.look} size={32} />
+      {/* Header: who this is, what they can do here, and where they stand. */}
+      <header className="panel relative overflow-hidden p-5 sm:p-8" style={banner ? { background: banner } : undefined}>
+        {banner ? (
+          <div aria-hidden className="pointer-events-none absolute inset-0 bg-gradient-to-t from-bg-deep/90 via-bg-deep/40 to-bg-deep/10" />
+        ) : (
+          <div
+            aria-hidden
+            className="pointer-events-none absolute -top-24 -left-16 size-72 rounded-full bg-[radial-gradient(circle,rgb(255_191_46/0.25),transparent_70%)]"
+          />
+        )}
+
+        <div className="relative flex flex-col gap-5 sm:flex-row sm:items-center sm:gap-8">
+          <div className="flex min-w-0 flex-1 items-center gap-4 sm:gap-6">
+            <div className="relative shrink-0">
+              <FramedAvatar player={player} size={96} className="ring-4 ring-accent shadow-[var(--shadow-card)]" />
+              <LevelDisc level={level} className="absolute -right-1.5 -bottom-1.5" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <h1 className="title-drop font-display text-[2rem] leading-[1.05] text-balance break-words sm:text-[2.75rem]">
+                {player.name}
+              </h1>
+              {player.look?.titleId && <PlayerTitle look={player.look} className="mt-1 block sm:text-lg" />}
+              <p className={`mt-1.5 text-sm sm:text-base ${banner ? "text-ink/85" : "text-muted"}`}>
+                <span className="font-extrabold whitespace-nowrap" style={{ color: grade.tint }}>
+                  {grade.name}
+                </span>
+                {" · "}
+                <span className="inline-block max-w-full truncate align-bottom">@{player.handle}</span>
+                <span className="hidden sm:inline"> · collectionne depuis {formatMonthYear(player.memberSince)}</span>
+              </p>
+              <BadgeRow look={player.look} size={30} className="mt-3 flex-wrap" />
+            </div>
           </div>
-          {player.look?.titleId && <PlayerTitle look={player.look} className="mt-1 block text-lg" />}
-          <p className={`mt-2 ${banner ? "text-ink/80" : "text-muted"}`}>
-            @{player.handle} · collectionne depuis {formatMonthYear(player.memberSince)}
-          </p>
-          <PermitChip level={level} className="mt-3" />
-        </div>
-        {isMe ? (
-          <div className="flex flex-wrap gap-2 self-start sm:flex-col sm:self-center">
-            <Link href="/personnaliser" className={buttonInk}>
-              <Palette className="size-4" aria-hidden />
-              Personnaliser
-            </Link>
-            <Link href="/parametres" className={buttonGhost}>
-              <Settings className="size-4" aria-hidden />
-              Paramètres
-            </Link>
-            {account?.admin && (
-              <Link href="/admin" className={buttonGhost}>
-                <ShieldCheck className="size-4" aria-hidden />
-                Modération
+
+          {isMe ? (
+            <div className="flex items-center gap-2 sm:self-start">
+              <Link href="/personnaliser" className={`${buttonInk} flex-1 sm:flex-none`}>
+                <Palette className="size-4" aria-hidden />
+                Personnaliser
               </Link>
-            )}
-          </div>
-        ) : viewer ? (
-          <div className="flex flex-col items-start gap-2 self-start sm:items-end sm:self-center">
-            <Link href={`/echanges/nouveau?avec=${player.handle}`} className={buttonInk}>
-              <ArrowLeftRight className="size-4" aria-hidden />
-              Proposer un échange
-            </Link>
-            <ReportButton playerId={player.id} playerName={player.name} />
-          </div>
-        ) : null}
-      </div>
+              <Link href="/parametres" className={`${buttonGhost} size-11 p-0`} aria-label="Paramètres" title="Paramètres">
+                <Settings className="size-5" aria-hidden />
+              </Link>
+              {account?.admin && (
+                <Link href="/admin" className={`${buttonGhost} size-11 p-0`} aria-label="Modération" title="Modération">
+                  <ShieldCheck className="size-5" aria-hidden />
+                </Link>
+              )}
+            </div>
+          ) : viewer ? (
+            <div className="flex flex-col gap-3 sm:items-end sm:self-start">
+              <Link href={`/echanges/nouveau?avec=${player.handle}`} className={`${buttonPrimary} whitespace-nowrap`}>
+                <ArrowLeftRight className="size-4" aria-hidden />
+                Proposer un échange
+              </Link>
+              <div className="flex items-center justify-between gap-3 sm:flex-col sm:items-end sm:gap-2">
+                <FriendButton playerId={player.id} playerName={player.name} status={friendship} />
+                <ReportButton playerId={player.id} playerName={player.name} />
+              </div>
+            </div>
+          ) : null}
+        </div>
 
-      <dl className="relative mt-6 grid grid-cols-2 gap-2 sm:grid-cols-4">
-        {stats.map(([label, value]) => (
-          <div key={label} className={`panel-sunken px-4 py-3 ${banner ? "bg-bg-deep/70 backdrop-blur-sm" : ""}`}>
-            <dt className="text-xs font-bold text-muted">{label}</dt>
-            <dd className="title-drop mt-0.5 font-display text-2xl tabular-nums">{value}</dd>
-          </div>
-        ))}
-      </dl>
-      </div>
+        {permit && <PermitProgress permit={permit} href="#permis" className="relative mt-5 sm:max-w-md" />}
 
-      {permit && (
-        <section className="mt-14">
-          <h2 className="title-drop font-display text-xl sm:text-2xl">Permis</h2>
-          <p className="mt-1 text-sm text-muted">Joue pour gagner de l&apos;XP : chaque permis débloque des places au garage, des réductions et des cosmétiques.</p>
-          <div className="mt-6">
-            <PermitPanel player={player} permit={permit} />
-          </div>
-        </section>
-      )}
-
-      <section className="mt-14">
-        <h2 className="title-drop font-display text-xl sm:text-2xl">Garage</h2>
-        <p className="mt-1 text-sm text-muted">
-          {isMe
-            ? `Ta vitrine publique : jusqu'à ${slots} cartes, dans l'ordre que tu veux.`
-            : `Les cartes que ${player.name} expose.`}
+        <dl className="relative mt-5 grid grid-cols-2 gap-2 sm:mt-6 sm:grid-cols-4">
+          {stats.map(([label, value]) => (
+            <div key={label} className={`panel-sunken px-4 py-3 ${banner ? "bg-bg-deep/70 backdrop-blur-sm" : ""}`}>
+              <dt className="text-xs font-bold text-muted">{label}</dt>
+              <dd className="title-drop mt-0.5 font-display text-xl tabular-nums sm:text-2xl">{value}</dd>
+            </div>
+          ))}
+        </dl>
+        <p className={`relative mt-3 text-xs sm:hidden ${banner ? "text-ink/75" : "text-muted"}`}>
+          Collectionne depuis {formatMonthYear(player.memberSince)}
         </p>
-        <div className="mt-6">
+      </header>
+
+      {/* The showcase: what the player chose to show off. */}
+      <section aria-labelledby="garage" className="mt-12 sm:mt-14">
+        <SectionTitle
+          id="garage"
+          count={isMe ? `${garage.length} / ${slots}` : garage.length > 0 ? String(garage.length) : undefined}
+          detail={
+            isMe
+              ? `Ta vitrine publique : jusqu'à ${slots} cartes, dans l'ordre que tu veux.`
+              : `Les cartes que ${player.name} expose.`
+          }
+        >
+          Garage
+        </SectionTitle>
+        <div className="mt-5">
           {isMe ? (
             <GarageEditor garage={garage} stacks={stacks} slots={slots} />
           ) : garage.length > 0 ? (
@@ -181,43 +228,31 @@ async function PlayerProfile({ params }: { params: Promise<{ handle: string }> }
         </div>
       </section>
 
-      {completed.length > 0 && (
-        <section className="mt-14">
-          <h2 className="title-drop font-display text-xl sm:text-2xl">
-            Séries terminées <span className="text-muted tabular-nums">{completed.length}</span>
-          </h2>
-          <ul className="mt-4 flex flex-wrap gap-2">
-            {completed.map((s) => (
-              <li key={s.id}>
-                <Link
-                  href={`/album/${s.id}`}
-                  className="inline-flex items-center gap-1.5 rounded-full bg-surface-lo px-3.5 py-1.5 text-sm font-extrabold transition-colors hover:bg-surface-hi"
-                >
-                  <span aria-hidden className="size-2 rounded-full bg-green" />
-                  {s.name}
-                </Link>
-              </li>
-            ))}
-          </ul>
+      {/* Progression, for the player's own eyes only. */}
+      {permit && (
+        <section id="permis" aria-labelledby="permis-titre" className="mt-12 scroll-mt-24 sm:mt-14">
+          <SectionTitle
+            id="permis-titre"
+            detail="Joue pour gagner de l'XP : chaque permis débloque des places au garage, des réductions et des cosmétiques."
+          >
+            Permis
+          </SectionTitle>
+          <div className="mt-5">
+            <PermitPanel player={player} permit={permit} />
+          </div>
         </section>
       )}
 
-      <section className="mt-14">
+      {/* Everything they hold, rarest first, with the series they finished. */}
+      <section aria-labelledby="collection" className="mt-12 sm:mt-14">
         <div className="flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <h2 className="title-drop font-display text-xl sm:text-2xl">Collection</h2>
-            <ul className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-sm">
-              {TIER_ORDER.toReversed().map((t) => (
-                <li key={t} className="flex items-center gap-2">
-                  <RarityDiamonds tier={t} size={8} />
-                  <span className="text-muted">{TIERS[t].label}</span>
-                  <span className="font-black tabular-nums">
-                    {stacks.filter((s) => s.card.tier === t).length}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </div>
+          <SectionTitle
+            id="collection"
+            count={formatScore(stacks.length)}
+            detail={`${formatScore(copies.length)} exemplaires, les plus rares d'abord.`}
+          >
+            Collection
+          </SectionTitle>
           {isMe && (
             <Link href="/collection" className="btn btn-sm">
               Gérer ma collection
@@ -225,30 +260,55 @@ async function PlayerProfile({ params }: { params: Promise<{ handle: string }> }
           )}
         </div>
 
+        <ul className="mt-4 flex flex-wrap gap-2 text-sm" aria-label="Voitures par rareté">
+          {TIER_ORDER.toReversed().map((t) => (
+            <li key={t} className="hud-pill h-9 gap-2 pr-3.5 pl-3">
+              <RarityDiamonds tier={t} size={8} />
+              <span className="font-bold text-muted">{TIERS[t].label}</span>
+              <span>{stacks.filter((s) => s.card.tier === t).length}</span>
+            </li>
+          ))}
+        </ul>
+
+        {completed.length > 0 && (
+          <div className="mt-5">
+            <h3 className="text-sm font-extrabold">
+              Séries terminées <span className="text-muted tabular-nums">{completed.length}</span>
+            </h3>
+            <ul className="mt-2 flex flex-wrap gap-2">
+              {completed.map((s) => (
+                <li key={s.id}>
+                  <Link
+                    href={`/album/${s.id}`}
+                    className="inline-flex items-center gap-1.5 rounded-full bg-surface-lo px-3.5 py-1.5 text-sm font-extrabold transition-colors hover:bg-surface-hi"
+                  >
+                    <span aria-hidden className="size-2 rounded-full bg-green" />
+                    {s.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
         {stacks.length === 0 ? (
           <div className="mt-6">
             <EmptyState title="Aucune carte pour l'instant." />
           </div>
         ) : (
-          <ul className="mt-6 grid grid-cols-3 gap-x-3 gap-y-5 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8">
-            {stacks.slice(0, 48).map(({ card, copies }) => (
-              <li key={card.slug} className="relative">
-                <Link href={`/cartes/${card.slug}`} className="block">
-                  <TradingCard card={card} serial={copies[0].serial} finish={copies[0].finish} interactive={false} className="w-full" />
-                </Link>
-                {copies.length > 1 && (
-                  <span className="absolute -top-1.5 -right-1.5 z-10 rounded-full bg-accent px-1.5 py-0.5 text-[0.65rem] font-black text-accent-ink tabular-nums shadow-[0_2px_0_var(--accent-edge)]">
-                    ×{copies.length}
-                  </span>
+          <>
+            <div className="mt-6">{cardList(shown.slice(0, FIRST_CARDS))}</div>
+            {shown.length > FIRST_CARDS && (
+              <ShowMore label={`Voir ${shown.length - FIRST_CARDS} cartes de plus`}>
+                <div className="mt-5">{cardList(shown.slice(FIRST_CARDS))}</div>
+                {stacks.length > MAX_CARDS && (
+                  <p className="mt-6 text-sm text-muted">
+                    Et {formatScore(stacks.length - MAX_CARDS)} autres voitures, des moins rares.
+                  </p>
                 )}
-              </li>
-            ))}
-          </ul>
-        )}
-        {stacks.length > 48 && (
-          <p className="mt-6 text-sm text-muted">
-            Et {stacks.length - 48} autres voitures, des moins rares.
-          </p>
+              </ShowMore>
+            )}
+          </>
         )}
       </section>
     </>
