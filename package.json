@@ -11,7 +11,8 @@
     "db:start": "supabase start",
     "db:stop": "supabase stop",
     "db:reset": "supabase db reset --local",
-    "db:seed": "supabase db query --local -f scripts/seed/seed.sql"
+    "db:seed": "docker exec -i supabase_db_kuruma psql -U postgres -d postgres -q -v ON_ERROR_STOP=1 < scripts/seed/seed.sql",
+    "db:unseed": "docker exec -i supabase_db_kuruma psql -U postgres -d postgres -q -v ON_ERROR_STOP=1 < scripts/seed/unseed.sql"
   },
   "dependencies": {
     "@react-three/fiber": "9.8.1",

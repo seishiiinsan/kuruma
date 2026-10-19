@@ -96,7 +96,7 @@ Voir [`supabase/tests/README.md`](supabase/tests/README.md) pour le détail de c
 | `npm run dev` | Serveur de développement (base locale) |
 | `npm run db:start` / `npm run db:stop` | Démarre / arrête la base Supabase locale |
 | `npm run db:reset` | Recrée la base locale à partir des migrations |
-| `npm run db:seed` | Ajoute les joueurs factices à la base locale |
+| `npm run db:seed` / `npm run db:unseed` | Ajoute / retire les joueurs factices de la base locale |
 | `npm run build` / `npm start` | Build et serveur de production |
 | `npm run lint` | ESLint |
 | `npm run test:db` | Tests SQL (pgTAP) |

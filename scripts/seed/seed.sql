@@ -4,8 +4,8 @@
 -- principal (le plus ancien compte réel) : échanges reçus et envoyés,
 -- notifications de chaque sorte, séries et succès à réclamer, annonces, etc.
 --
---   supabase db query --local -f scripts/seed/seed.sql
---   supabase db query --local -f scripts/seed/unseed.sql   (retire les joueurs factices)
+--   npm run db:seed
+--   npm run db:unseed   (retire les joueurs factices)
 
 begin;
 
