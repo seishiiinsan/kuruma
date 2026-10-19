@@ -20,6 +20,10 @@ Deux migrations ne doivent jamais partager le même horodatage : `supabase db re
 
 ## Ce qui est couvert
 
+- `driving_permit` : barème d'XP et de niveaux, notifications de montée de
+  niveau, niveau qui ne redescend jamais, échanges comptés une fois par
+  partenaire et par jour, places de garage, prix réduits en vitrine et en
+  occasion, cosmétiques débloqués par le niveau, droits d'appel.
 - `economy_packs` : `open_pack` et `my_pack_wallet`. Packs gratuits, bonus,
   payés en jetons et premium ; refus sans pack ni jetons ; packs de salon et du
   week-end hors période ; `minted` égal au nombre de copies, numéros de série de

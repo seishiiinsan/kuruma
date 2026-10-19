@@ -14,6 +14,7 @@ import {
   Package,
   Recycle,
   ShoppingBag,
+  IdCard,
   Trophy,
   Warehouse,
   type LucideIcon,
@@ -42,6 +43,7 @@ const ICONS: Record<Metric, LucideIcon> = {
   garage: Warehouse,
   sold: Recycle,
   bought: ShoppingBag,
+  level: IdCard,
 };
 
 const ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];

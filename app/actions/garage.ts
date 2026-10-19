@@ -14,7 +14,9 @@ export async function saveGarage(copyIds: string[]): Promise<GarageResult> {
       ok: false,
       error: error.message.includes("not your card")
         ? "Une de ces cartes n'est plus à toi."
-        : "Le garage n'a pas pu être enregistré. Réessaie.",
+        : error.message.includes("garage is full")
+          ? "Ton garage est plein : monte de niveau sur ton permis pour gagner une place."
+          : "Le garage n'a pas pu être enregistré. Réessaie.",
     };
   }
   refresh();

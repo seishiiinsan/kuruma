@@ -105,6 +105,9 @@ export const COSMETICS: Cosmetic[] = [
   t("drift", "Roi du drift", "rare", { price: 800 }),
   t("gentleman", "Gentleman driver", "epic", { price: 1500 }),
   t("chef-ecurie", "Chef d'écurie", "legendary", { price: 4000 }),
+  t("permis-b", "Permis B", "common", { metric: "level", goal: 5 }),
+  t("pilote-essai", "Pilote d'essai", "epic", { metric: "level", goal: 20 }),
+  t("legende-paddock", "Légende du paddock", "legendary", { metric: "level", goal: 30 }),
 
   /* ---------- Badges ---------- */
   b("premier-pack", "Premier pack", "common", "package", { metric: "packs", goal: 1 }),
@@ -125,6 +128,7 @@ export const COSMETICS: Cosmetic[] = [
   b("eclair", "Éclair", "epic", "zap", { price: 900 }),
   b("fusee", "Launch control", "epic", "rocket", { price: 1400 }),
   b("etoile", "Étoile filante", "legendary", "star", { price: 3000 }),
+  b("rallye", "Licence rallye", "epic", "flag", { metric: "level", goal: 15 }),
 
   /* ---------- Avatar frames ---------- */
   f("bronze", "Bronze", "common", "conic-gradient(from 210deg, #f0a061, #a9561b, #f6c08d, #a9561b, #f0a061)", { metric: "cards", goal: 25 }),
@@ -135,6 +139,8 @@ export const COSMETICS: Cosmetic[] = [
   f("damier", "Damier", "rare", "repeating-conic-gradient(#ffffff 0 25%, #111111 0 50%) 0 0 / 10px 10px", { price: 900 }),
   f("neon", "Néon", "epic", "conic-gradient(from 90deg, #00f0ff, #ff2bd6, #00f0ff, #ff2bd6, #00f0ff)", { price: 1200 }),
   f("holo", "Holographique", "legendary", "conic-gradient(from 0deg, #ff6b6b, #ffd93d, #6bff95, #4fb0ff, #c77dff, #ff6b6b)", { price: 2500 }),
+  f("licence", "Licence circuit", "rare", "conic-gradient(from 45deg, #4fb0ff, #1d5bd0, #ffffff, #1d5bd0, #4fb0ff)", { metric: "level", goal: 10 }),
+  f("officiel", "Pilote officiel", "epic", "repeating-conic-gradient(from 45deg, #ff4d6d 0 12.5%, #ffffff 0 25%)", { metric: "level", goal: 25 }),
 
   /* ---------- Profile banners ---------- */
   n("bitume", "Bitume", "common", "repeating-linear-gradient(100deg, transparent 0 38px, rgb(255 204 51 / 0.18) 38px 46px), linear-gradient(160deg, #3a3550 0%, #1c1a28 70%)", { metric: "cards", goal: 250 }),
@@ -144,6 +150,8 @@ export const COSMETICS: Cosmetic[] = [
   n("tokyo", "Néons de Tokyo", "epic", "radial-gradient(circle at 15% 20%, rgb(255 43 214 / 0.55), transparent 50%), radial-gradient(circle at 85% 80%, rgb(0 240 255 / 0.45), transparent 50%), linear-gradient(160deg, #1a0b3d, #07041a)", { price: 1000 }),
   n("ring", "Nordschleife", "epic", "radial-gradient(ellipse at 50% 120%, rgb(47 210 122 / 0.4), transparent 60%), linear-gradient(170deg, #4b6b8a 0%, #1f3346 55%, #0b1520 100%)", { price: 1500 }),
   n("aurore", "Aurore boréale", "legendary", "radial-gradient(ellipse at 30% 0%, rgb(107 255 149 / 0.55), transparent 55%), radial-gradient(ellipse at 75% 10%, rgb(199 125 255 / 0.5), transparent 55%), linear-gradient(180deg, #0a1f3a, #050816)", { price: 2000 }),
+  n("speciale", "Spéciale", "epic", "radial-gradient(ellipse at 20% 110%, rgb(255 154 60 / 0.55), transparent 60%), repeating-linear-gradient(115deg, transparent 0 22px, rgb(255 255 255 / 0.05) 22px 24px), linear-gradient(165deg, #6b4a2f 0%, #2e1f2c 60%, #120c3c 100%)", { metric: "level", goal: 15 }),
+  n("legende", "Légende du paddock", "legendary", "radial-gradient(ellipse at 50% -20%, rgb(255 224 102 / 0.6), transparent 60%), repeating-linear-gradient(90deg, transparent 0 46px, rgb(255 204 51 / 0.12) 46px 48px), linear-gradient(180deg, #3b2a00 0%, #1d1656 75%)", { metric: "level", goal: 30 }),
 ];
 
 export const cosmeticById = (id: string | null | undefined) => (id ? COSMETICS.find((c) => c.id === id) : undefined);

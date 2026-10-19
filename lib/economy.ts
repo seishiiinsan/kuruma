@@ -63,7 +63,9 @@ export type Metric =
   | "score"
   | "garage"
   | "sold"
-  | "bought";
+  | "bought"
+  /** Driving permit level (lib/permit.ts); unlocks cosmetics, no achievement. */
+  | "level";
 
 export type Metrics = Record<Metric, number>;
 

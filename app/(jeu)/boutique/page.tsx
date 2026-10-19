@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Palette } from "lucide-react";
-import { getCopiesOf, getViewer } from "@/lib/game";
+import { getCopiesOf, getMyPermit, getViewer } from "@/lib/game";
 import { getWallet } from "@/lib/packs-server";
 import { getDuplicates, getMarketListings, getMyListings, getShopWindow, getUsedStock } from "@/lib/shop";
 import { CoinBalance } from "@/components/game/coins";
@@ -20,6 +20,8 @@ async function Balance() {
 async function Body() {
   const viewer = await getViewer();
   if (!viewer) redirect("/connexion");
+  // The permit first: buying at the shop may have just raised the level.
+  const permit = await getMyPermit();
   const [wallet, offers, stock, copies, listings, myListings] = await Promise.all([
     getWallet(),
     getShopWindow(),
@@ -38,6 +40,7 @@ async function Body() {
       myListings={myListings}
       owned={[...new Set(copies.map((c) => c.card.slug))]}
       duplicates={duplicates}
+      level={permit?.level ?? 1}
     />
   );
 }

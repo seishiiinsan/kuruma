@@ -111,7 +111,10 @@ export async function getMyAchievements(userId: string): Promise<{ metrics: Metr
   ]);
   const values = (metrics ?? {}) as Partial<Metrics>;
   return {
-    metrics: Object.fromEntries(ACHIEVEMENTS.map((f) => [f.metric, Number(values[f.metric] ?? 0)])) as Metrics,
+    metrics: {
+      ...Object.fromEntries(ACHIEVEMENTS.map((f) => [f.metric, Number(values[f.metric] ?? 0)])),
+      level: Number(values.level ?? 1),
+    } as Metrics,
     claimed: new Set((claims ?? []).map((c) => c.achievement_id)),
   };
 }

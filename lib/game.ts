@@ -5,6 +5,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { cardBySlug } from "./catalog";
 import { asFinish, byRarity, toFace, type CardFace, type Finish } from "./cards";
 import { toLook, type Look } from "./cosmetics";
+import { toPermit, type Permit } from "./permit";
 import { toAccount, type Account } from "./trust";
 
 /** A public player, as shown next to anything they did. */
@@ -113,10 +114,18 @@ export async function getPlayerByHandle(handle: string) {
   const supabase = await client();
   const { data } = await supabase
     .from("profiles")
-    .select("id, handle, display_name, avatar_url, created_at, title_id, frame_id, banner_id, badge_ids")
+    .select("id, handle, display_name, avatar_url, created_at, title_id, frame_id, banner_id, badge_ids, permit_level")
     .eq("handle", handle)
     .maybeSingle();
-  return data ? { ...toPlayer(data), memberSince: data.created_at } : null;
+  return data ? { ...toPlayer(data), memberSince: data.created_at, level: data.permit_level } : null;
+}
+
+/** The signed-in player's permit, after catching up with what they just did. */
+export async function getMyPermit(): Promise<Permit | null> {
+  const supabase = await client();
+  const { data } = await supabase.rpc("my_permit");
+  const permit = data as { level?: number; xp?: number } | null;
+  return permit?.level ? toPermit(permit.level, permit.xp ?? 0) : null;
 }
 
 export async function getPlayersByIds(ids: string[]): Promise<Map<string, PlayerRef>> {
@@ -304,8 +313,6 @@ export async function getOwnerCounts(slugs: string[]): Promise<Map<string, numbe
 
 /* ---------- Garage ---------- */
 
-export const GARAGE_SLOTS = 6;
-
 export async function getGarage(userId: string): Promise<Copy[]> {
   const supabase = await client();
   const { data } = await supabase
@@ -413,7 +420,8 @@ export type NotificationKind =
   | "wish_market"
   | "market_sold"
   | "market_expired"
-  | "moderation";
+  | "moderation"
+  | "permit_up";
 
 export type Notification = {
   id: string;
@@ -421,6 +429,8 @@ export type Notification = {
   actor: PlayerRef | null;
   /** The wished car, for wishlist alerts. */
   card: { slug: string; name: string } | null;
+  /** The level reached, for permit_up. */
+  level: number | null;
   createdAt: string;
   unread: boolean;
 };
@@ -429,7 +439,7 @@ export async function getNotifications(limit = 12): Promise<Notification[]> {
   const supabase = await client();
   const { data } = await supabase
     .from("notifications")
-    .select("id, kind, actor_id, card_slug, created_at, read_at")
+    .select("id, kind, actor_id, card_slug, level, created_at, read_at")
     .order("created_at", { ascending: false })
     .limit(limit);
   const rows = data ?? [];
@@ -441,6 +451,7 @@ export async function getNotifications(limit = 12): Promise<Notification[]> {
       kind: n.kind as NotificationKind,
       actor: n.actor_id ? (actors.get(n.actor_id) ?? null) : null,
       card: card ? { slug: card.slug, name: card.name } : null,
+      level: n.level,
       createdAt: n.created_at,
       unread: n.read_at === null,
     };
