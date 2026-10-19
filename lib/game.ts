@@ -421,7 +421,9 @@ export type NotificationKind =
   | "market_sold"
   | "market_expired"
   | "moderation"
-  | "permit_up";
+  | "permit_up"
+  | "friend_request"
+  | "friend_accepted";
 
 export type Notification = {
   id: string;

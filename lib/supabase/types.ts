@@ -185,6 +185,30 @@ export type Database = {
           },
         ]
       }
+      friendships: {
+        Row: {
+          accepted_at: string | null
+          addressee_id: string
+          created_at: string
+          requester_id: string
+          status: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          addressee_id: string
+          created_at?: string
+          requester_id: string
+          status?: string
+        }
+        Update: {
+          accepted_at?: string | null
+          addressee_id?: string
+          created_at?: string
+          requester_id?: string
+          status?: string
+        }
+        Relationships: []
+      }
       garage_slots: {
         Row: {
           copy_id: string
@@ -1192,6 +1216,8 @@ export type Database = {
       }
       my_metrics: { Args: never; Returns: Json }
       my_permit: { Args: never; Returns: Json }
+      add_friend: { Args: { p_to: string }; Returns: string }
+      remove_friend: { Args: { p_other: string }; Returns: undefined }
       my_missions: {
         Args: never
         Returns: {
