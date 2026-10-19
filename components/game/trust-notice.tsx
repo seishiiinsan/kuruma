@@ -1,11 +1,11 @@
 import { ShieldAlert } from "lucide-react";
 import { getAccount } from "@/lib/game";
-import { MAX_TRADE_RATIO, PAIR_PER_WEEK, TRADES_PER_DAY, YOUNG_ACCOUNT_DAYS, tradeBlockText } from "@/lib/trust";
+import { MAX_TRADE_RATIO, PAIR_PER_WEEK, TRADES_PER_DAY, YOUNG_ACCOUNT_DAYS, marketBlockText, tradeBlockText } from "@/lib/trust";
 
-/** Why trades and the market are closed, or the limits a young account trades under. */
-export async function TrustNotice({ showLimits = false }: { showLimits?: boolean }) {
+/** Why trades or the market are closed, or the limits a young account trades under. */
+export async function TrustNotice({ showLimits = false, market = false }: { showLimits?: boolean; market?: boolean }) {
   const account = await getAccount();
-  const blocked = tradeBlockText(account);
+  const blocked = market ? marketBlockText(account) : tradeBlockText(account);
   if (!blocked && !(showLimits && account?.young)) return null;
 
   return (

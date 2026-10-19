@@ -79,7 +79,7 @@ export default function ShopPage() {
         <span className="btn btn-sm hidden sm:inline-flex">Personnaliser</span>
       </Link>
       <Suspense fallback={null}>
-        <TrustNotice />
+        <TrustNotice market />
       </Suspense>
       <Suspense fallback={<div className="h-96 panel-sunken animate-pulse" />}>
         <Body />
