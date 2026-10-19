@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import Link from "next/link";
-import { getNotifications, getViewer } from "@/lib/game";
+import { getAccount, getNotifications, getViewer } from "@/lib/game";
 import { getWallet } from "@/lib/packs-server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { AccountMenu } from "./account-menu";
@@ -14,6 +14,16 @@ async function pendingOffers(viewerId: string) {
     .from("trades")
     .select("id", { count: "exact", head: true })
     .eq("to_id", viewerId)
+    .eq("status", "pending");
+  return count ?? 0;
+}
+
+async function pendingFriendRequests(viewerId: string) {
+  const supabase = await createSupabaseServerClient();
+  const { count } = await supabase
+    .from("friendships")
+    .select("requester_id", { count: "exact", head: true })
+    .eq("addressee_id", viewerId)
     .eq("status", "pending");
   return count ?? 0;
 }
@@ -35,10 +45,12 @@ async function NavActions() {
   const viewer = await getViewer();
 
   if (viewer) {
-    const [wallet, notifications, trades] = await Promise.all([
+    const [wallet, notifications, trades, friendRequests, account] = await Promise.all([
       getWallet(),
       getNotifications(),
       pendingOffers(viewer.id),
+      pendingFriendRequests(viewer.id),
+      getAccount(),
     ]);
     return (
       <div className="flex flex-1 items-center justify-between gap-3">
@@ -46,7 +58,7 @@ async function NavActions() {
         <div className="ml-auto flex items-center gap-2">
           <CoinChip wallet={wallet} />
           <NotificationMenu notifications={notifications} wallet={wallet} />
-          <AccountMenu viewer={viewer} />
+          <AccountMenu viewer={viewer} friendRequests={friendRequests} admin={account?.admin ?? false} />
         </div>
         <MobileTabBar wallet={wallet} trades={trades} />
       </div>

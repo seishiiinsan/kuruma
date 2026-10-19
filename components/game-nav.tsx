@@ -1,5 +1,6 @@
 "use client";
 
+import { Fragment } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -36,16 +37,16 @@ function useBadges(wallet: Wallet, trades: number): Badges {
 
 const BOOSTERS: NavItem = { href: "/boosters", label: "Boosters", icon: PackIcon, badge: "packs" };
 
-const GAME_LINKS: NavItem[] = [
-  BOOSTERS,
-  { href: "/collection", label: "Collection", icon: Layers },
-  { href: "/echanges", label: "Échanges", icon: ArrowLeftRight, badge: "trades" },
-  { href: "/boutique", label: "Boutique", icon: Store },
-  { href: "/succes", label: "Succès", icon: Award, badge: "rewards" },
-];
+const COLLECTION: NavItem = { href: "/collection", label: "Collection", icon: Layers };
+const TRADES: NavItem = { href: "/echanges", label: "Échanges", icon: ArrowLeftRight, badge: "trades" };
+const SHOP: NavItem = { href: "/boutique", label: "Boutique", icon: Store };
+const ACHIEVEMENTS: NavItem = { href: "/succes", label: "Succès", icon: Award, badge: "rewards" };
 
-/* Phones: Boosters raised in the middle. Ranking lives in the account menu on every screen. */
-const MOBILE_LINKS: NavItem[] = [GAME_LINKS[1], GAME_LINKS[2], BOOSTERS, GAME_LINKS[3], GAME_LINKS[4]];
+/* Desktop, by what the player does: get cars (boosters, shop), keep them, swap them, then progress. */
+const GAME_GROUPS: NavItem[][] = [[BOOSTERS, SHOP], [COLLECTION, TRADES], [ACHIEVEMENTS]];
+
+/* Phones: Boosters raised in the middle. Ranking and friends live in the account menu on every screen. */
+const MOBILE_LINKS: NavItem[] = [COLLECTION, TRADES, BOOSTERS, SHOP, ACHIEVEMENTS];
 
 function useIsActive() {
   const pathname = usePathname();
@@ -84,27 +85,32 @@ export function GameNavLinks({ wallet, trades }: { wallet: Wallet; trades: numbe
   const badges = useBadges(wallet, trades);
   return (
     <nav aria-label="Jeu" className="hidden items-center gap-1 lg:flex">
-      {GAME_LINKS.map((item) => {
-        const active = isActive(item.href);
-        const Icon = item.icon;
-        return (
-          <Link
-            key={item.href}
-            href={item.href}
-            aria-label={badgeLabel(item, badges)}
-            aria-current={active ? "page" : undefined}
-            title={item.label}
-            className={`relative inline-flex h-11 items-center gap-1.5 rounded-xl px-2.5 text-sm font-extrabold transition-colors xl:gap-2 xl:px-3 ${
-              active ? "bg-white/10 text-ink" : "text-muted hover:bg-white/5 hover:text-ink"
-            }`}
-          >
-            <Icon className={`size-[1.15rem] ${active ? "text-accent" : ""}`} strokeWidth={2.4} />
-            {item.label}
-            {item.badge && <Bubble count={badges[item.badge]} gold={item.badge === "packs"} />}
-            {active && <span aria-hidden className="absolute inset-x-3 -bottom-[0.6rem] h-[3px] rounded-full bg-accent" />}
-          </Link>
-        );
-      })}
+      {GAME_GROUPS.map((group, i) => (
+        <Fragment key={group[0].href}>
+          {i > 0 && <span aria-hidden className="mx-1 h-5 w-px bg-white/10 xl:mx-1.5" />}
+          {group.map((item) => {
+            const active = isActive(item.href);
+            const Icon = item.icon;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                aria-label={badgeLabel(item, badges)}
+                aria-current={active ? "page" : undefined}
+                title={item.label}
+                className={`relative inline-flex h-11 items-center gap-1.5 rounded-xl px-2.5 text-sm font-extrabold transition-colors xl:gap-2 xl:px-3 ${
+                  active ? "bg-white/10 text-ink" : "text-muted hover:bg-white/5 hover:text-ink"
+                }`}
+              >
+                <Icon className={`size-[1.15rem] ${active ? "text-accent" : ""}`} strokeWidth={2.4} />
+                {item.label}
+                {item.badge && <Bubble count={badges[item.badge]} gold={item.badge === "packs"} />}
+                {active && <span aria-hidden className="absolute inset-x-3 -bottom-[0.6rem] h-[3px] rounded-full bg-accent" />}
+              </Link>
+            );
+          })}
+        </Fragment>
+      ))}
     </nav>
   );
 }
