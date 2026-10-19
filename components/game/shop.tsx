@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Check, Recycle } from "lucide-react";
 import { buyListing, buyOffer, buyUsed, sellCopy, sellDuplicates } from "@/app/actions/economy";
-import { TIERS, TIER_ORDER, type CardFace, type CardTier } from "@/lib/cards";
+import { TIERS, TIER_ORDER, type CardFace, type CardTier, type Finish } from "@/lib/cards";
 import { SELL_PRICE, USED_PRICE } from "@/lib/economy";
 import type { Copy } from "@/lib/game";
 import { PACKS, packSize, type Wallet } from "@/lib/packs";
@@ -34,6 +34,7 @@ function Feedback({ result }: { result: { ok: boolean; text: string } | null }) 
 function ForSale({
   card,
   serial,
+  finish,
   price,
   coins,
   label,
@@ -43,6 +44,7 @@ function ForSale({
 }: {
   card: CardFace;
   serial?: number;
+  finish?: Finish;
   price: number;
   coins: number;
   label?: string;
@@ -64,7 +66,7 @@ function ForSale({
         </span>
       )}
       <Link href={`/cartes/${card.slug}`} className="block">
-        <TradingCard card={card} serial={serial} className="w-full" />
+        <TradingCard card={card} serial={serial} finish={finish} className="w-full" />
       </Link>
       <div className="flex items-center justify-between gap-2">
         <Coins amount={price} className="font-bold" />
@@ -249,6 +251,7 @@ function UsedStock({ stock, owned, coins }: { stock: Copy[]; owned: Set<string>;
               key={copy.id}
               card={copy.card}
               serial={copy.serial}
+              finish={copy.finish}
               price={USED_PRICE[copy.card.tier]}
               coins={coins}
               owned={owned.has(copy.card.slug)}
@@ -333,6 +336,7 @@ function Market({
                   key={l.id}
                   card={l.card}
                   serial={l.serial}
+                  finish={l.finish}
                   price={l.price}
                   coins={coins}
                   owned={owned.has(l.card.slug)}

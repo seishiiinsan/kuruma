@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, Check } from "lucide-react";
 import { cardBySlug } from "@/lib/catalog";
 import { formatSerial, toFace } from "@/lib/cards";
+import { toStacks } from "@/lib/stacks";
 import { getClaims, getCopiesOf, getOwnerCounts, getViewer } from "@/lib/game";
 import { progressOf, seriesById } from "@/lib/series";
 import { formatMonthYear } from "@/lib/time";
@@ -44,12 +45,8 @@ async function SeriesDetail({ params }: { params: Promise<{ id: string }> }) {
     getOwnerCounts(series.cards),
   ]);
 
-  // Best (lowest) serial held of each car.
-  const best = new Map<string, number>();
-  for (const copy of copies) {
-    const current = best.get(copy.card.slug);
-    if (current === undefined || copy.serial < current) best.set(copy.card.slug, copy.serial);
-  }
+  // Best copy held of each car: rare prints first, then the lowest serial.
+  const best = new Map(toStacks(copies).map((stack) => [stack.card.slug, stack.copies[0]]));
   const progress = progressOf(series, new Set(best.keys()), claims);
   const missing = series.cards.length - progress.owned;
   const pct = Math.round((progress.owned / series.cards.length) * 100);
@@ -107,7 +104,8 @@ async function SeriesDetail({ params }: { params: Promise<{ id: string }> }) {
         {series.cards.map((slug) => {
           const card = cardBySlug(slug);
           if (!card) return null;
-          const serial = best.get(slug);
+          const mine = best.get(slug);
+          const serial = mine?.serial;
           const owners = ownerCounts.get(slug) ?? 0;
           const otherOwners = serial === undefined ? owners : owners - 1;
           return (
@@ -116,6 +114,7 @@ async function SeriesDetail({ params }: { params: Promise<{ id: string }> }) {
                 <TradingCard
                   card={toFace(card)}
                   serial={serial}
+                  finish={mine?.finish}
                   missing={serial === undefined}
                   interactive={serial !== undefined}
                   className="w-full"

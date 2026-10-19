@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { Search } from "lucide-react";
-import { TIER_ORDER, TIERS, byRarity, type CardFace, type CardTier } from "@/lib/cards";
+import { TIER_ORDER, TIERS, byRarity, type CardFace, type CardTier, type Finish } from "@/lib/cards";
 import { RarityDiamonds } from "../rarity-diamonds";
 import { TradingCard } from "../trading-card";
 import { EmptyState, buttonPrimary } from "./ui";
@@ -11,8 +11,8 @@ import { EmptyState, buttonPrimary } from "./ui";
 /** All the copies a player holds of one car. */
 export type Stack = {
   card: CardFace;
-  /** Lowest serial first: the one worth showing. */
-  copies: { id: string; serial: number }[];
+  /** Rare prints first, then lowest serial: the one worth showing. */
+  copies: { id: string; serial: number; finish: Finish }[];
   lastObtained: string;
 };
 
@@ -180,7 +180,7 @@ export function CollectionGrid({
           {visible.map(({ card, copies }) => (
             <li key={card.slug} className="relative">
               <Link href={`/cartes/${card.slug}`} className="block">
-                <TradingCard card={card} serial={copies[0].serial} className="w-full" />
+                <TradingCard card={card} serial={copies[0].serial} finish={copies[0].finish} className="w-full" />
               </Link>
               {copies.length > 1 && (
                 <span className="absolute -top-2 -right-2 z-10 rounded-full bg-accent px-2 py-0.5 text-xs font-black text-accent-ink shadow-[0_2px_0_var(--accent-edge)] tabular-nums">

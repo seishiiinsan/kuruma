@@ -2,7 +2,7 @@ import "server-only";
 import { connection } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { cardBySlug } from "./catalog";
-import { TIER_ORDER, byRarity, toFace, type CardFace, type CardTier } from "./cards";
+import { TIER_ORDER, asFinish, byRarity, toFace, type CardFace, type CardTier } from "./cards";
 import { ACHIEVEMENTS, type Metrics } from "./economy";
 import { getPlayersByIds, type Copy, type PlayerRef } from "./game";
 import type { HistoryPoint, Quote } from "./market";
@@ -53,13 +53,13 @@ export async function getUsedStock(limit = 200): Promise<Copy[]> {
   const supabase = await client();
   const { data } = await supabase
     .from("shop_stock")
-    .select("listed_at, card_copies (id, card_slug, serial)")
+    .select("listed_at, card_copies (id, card_slug, serial, finish)")
     .order("listed_at", { ascending: false })
     .limit(limit);
   return (data ?? []).flatMap((row) => {
     const copy = row.card_copies;
     const card = copy ? cardBySlug(copy.card_slug) : undefined;
-    return copy && card ? [{ id: copy.id, serial: copy.serial, obtainedAt: row.listed_at, card: toFace(card) }] : [];
+    return copy && card ? [{ id: copy.id, serial: copy.serial, finish: asFinish(copy.finish), obtainedAt: row.listed_at, card: toFace(card) }] : [];
   });
 }
 
@@ -171,7 +171,7 @@ type ListingRow = {
   seller_id: string;
   expires_at: string;
   listed_at: string;
-  card_copies: { id: string; card_slug: string; serial: number } | null;
+  card_copies: { id: string; card_slug: string; serial: number; finish: string } | null;
 };
 
 async function toListings(rows: ListingRow[]): Promise<Listing[]> {
@@ -184,6 +184,7 @@ async function toListings(rows: ListingRow[]): Promise<Listing[]> {
           {
             id: copy.id,
             serial: copy.serial,
+            finish: asFinish(copy.finish),
             obtainedAt: row.listed_at,
             card: toFace(card),
             price: row.price,
@@ -195,7 +196,7 @@ async function toListings(rows: ListingRow[]): Promise<Listing[]> {
   });
 }
 
-const LISTING_COLUMNS = "price, seller_id, expires_at, listed_at, card_copies (id, card_slug, serial)";
+const LISTING_COLUMNS = "price, seller_id, expires_at, listed_at, card_copies (id, card_slug, serial, finish)";
 
 /** Latest listings across the market, still on sale. */
 export async function getMarketListings(limit = 120): Promise<Listing[]> {

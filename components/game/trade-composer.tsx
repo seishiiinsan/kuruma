@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowLeftRight, Check, Search } from "lucide-react";
 import { proposeTrade } from "@/app/actions/trades";
-import { byRarity, formatSerial } from "@/lib/cards";
+import { byRarity, formatSerial, type Finish } from "@/lib/cards";
 import type { PlayerRef } from "@/lib/game";
 import { Avatar } from "../avatar";
 import { TradingCard } from "../trading-card";
@@ -17,7 +17,7 @@ const MAX = 5;
 const normalize = (s: string) =>
   s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 
-type Picked = Map<string, { copyId: string; serial: number }>;
+type Picked = Map<string, { copyId: string; serial: number; finish: Finish }>;
 
 function Side({
   title,
@@ -104,6 +104,7 @@ function Side({
                   <TradingCard
                     card={stack.card}
                     serial={picked.get(stack.card.slug)?.serial ?? stack.copies[0].serial}
+                    finish={picked.get(stack.card.slug)?.finish ?? stack.copies[0].finish}
                     interactive={false}
                     className="w-full"
                   />
@@ -143,20 +144,20 @@ export function TradeComposer({
   const mineSlugs = useMemo(() => new Set(mine.map((s) => s.card.slug)), [mine]);
   const [take, setTake] = useState<Picked>(() => {
     const stack = theirs.find((s) => s.card.slug === wanted);
-    return new Map(stack ? [[stack.card.slug, { copyId: stack.copies[0].id, serial: stack.copies[0].serial }]] : []);
+    return new Map(stack ? [[stack.card.slug, { copyId: stack.copies[0].id, serial: stack.copies[0].serial, finish: stack.copies[0].finish }]] : []);
   });
   const [give, setGive] = useState<Picked>(new Map());
   const [pending, start] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
-  // Take their best serial, give your highest: you keep your low numbers.
+  // Take their best copy, give your plainest: you keep your rare prints and low numbers.
   const toggle = (set: typeof setTake, pickBest: boolean) => (stack: Stack) =>
     set((prev) => {
       const next = new Map(prev);
       if (next.has(stack.card.slug)) next.delete(stack.card.slug);
       else if (next.size < MAX) {
         const copy = pickBest ? stack.copies[0] : stack.copies[stack.copies.length - 1];
-        next.set(stack.card.slug, { copyId: copy.id, serial: copy.serial });
+        next.set(stack.card.slug, { copyId: copy.id, serial: copy.serial, finish: copy.finish });
       }
       return next;
     });

@@ -1,7 +1,7 @@
 "use server";
 
 import { cardBySlug } from "@/lib/catalog";
-import { byRarity, toFace } from "@/lib/cards";
+import { asFinish, byRarity, toFace } from "@/lib/cards";
 import type { Copy } from "@/lib/game";
 import { packById, type Wallet } from "@/lib/packs";
 import { readWallet } from "@/lib/packs-server";
@@ -43,12 +43,27 @@ export async function openPack(packId: string, pay = false): Promise<PackResult>
     };
   }
 
+  // The print is rolled by the database when the copy is minted.
+  const { data: prints } = await supabase
+    .from("card_copies")
+    .select("id, finish")
+    .in("id", data.map((row) => row.copy_id));
+  const finishes = new Map((prints ?? []).map((p) => [p.id, asFinish(p.finish)]));
+
   const openedAt = new Date().toISOString();
   const copies = data
     .flatMap((row) => {
       const card = cardBySlug(row.card_slug);
       return card
-        ? [{ id: row.copy_id, serial: row.serial, obtainedAt: openedAt, card: toFace(card) }]
+        ? [
+            {
+              id: row.copy_id,
+              serial: row.serial,
+              finish: finishes.get(row.copy_id) ?? ("standard" as const),
+              obtainedAt: openedAt,
+              card: toFace(card),
+            },
+          ]
         : [];
     })
     .sort((a, b) => byRarity(b.card, a.card));

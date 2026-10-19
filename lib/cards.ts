@@ -85,3 +85,23 @@ export function formatSerial(serial: number, supply: number | null) {
   if (supply == null) return `Nº ${int.format(serial)}`;
   return `Nº ${int.format(serial)}/${formatSupply(supply)}`;
 }
+
+/** A copy's print: rolled when it is minted (public.roll_finish). */
+export type Finish = "standard" | "holo" | "vintage";
+
+export const FINISHES: Record<Finish, { label: string; odds: number; blurb: string }> = {
+  standard: { label: "Standard", odds: 0.94, blurb: "" },
+  holo: { label: "Holo", odds: 0.04, blurb: "Tirage holographique : une copie sur 25." },
+  vintage: { label: "Photo d'époque", odds: 0.02, blurb: "Tirage façon photo d'époque : une copie sur 50." },
+};
+
+export const asFinish = (value: string | null | undefined): Finish =>
+  value === "holo" || value === "vintage" ? value : "standard";
+
+/** Numbers worth a badge: the first, the low ones, the very last of a run. */
+export function serialBadge(serial: number, supply: number | null): string | null {
+  if (serial === 1) return "Premier exemplaire";
+  if (supply !== null && supply > 1 && serial === supply) return "Dernier exemplaire";
+  if (serial <= 10) return "Numéro bas";
+  return null;
+}

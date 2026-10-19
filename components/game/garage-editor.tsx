@@ -58,7 +58,7 @@ export function GarageEditor({ garage, stacks }: { garage: Copy[]; stacks: Stack
         {slots.map((copy, index) => (
           <li key={copy.id} className="group relative">
             <Link href={`/cartes/${copy.card.slug}`} className="block">
-              <TradingCard card={copy.card} serial={copy.serial} className="w-full" />
+              <TradingCard card={copy.card} serial={copy.serial} finish={copy.finish} className="w-full" />
             </Link>
             <button
               type="button"
@@ -192,7 +192,7 @@ function GaragePicker({
                     }
                     className="block w-full rounded-[14px] transition-transform hover:-translate-y-1"
                   >
-                    <TradingCard card={card} serial={copies[0].serial} interactive={false} className="w-full" />
+                    <TradingCard card={card} serial={copies[0].serial} finish={copies[0].finish} interactive={false} className="w-full" />
                   </button>
                 </li>
               ))}

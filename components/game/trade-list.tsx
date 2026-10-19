@@ -26,7 +26,7 @@ function Cards({ copies, label }: { copies: Copy[]; label: string }) {
         {copies.map((copy) => (
           <li key={copy.id}>
             <Link href={`/cartes/${copy.card.slug}`} className="block" title={copy.card.name}>
-              <TradingCard card={copy.card} serial={copy.serial} interactive={false} className="w-20 sm:w-24" />
+              <TradingCard card={copy.card} serial={copy.serial} finish={copy.finish} interactive={false} className="w-20 sm:w-24" />
             </Link>
           </li>
         ))}

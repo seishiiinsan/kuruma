@@ -4,7 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ArrowLeftRight, ExternalLink } from "lucide-react";
 import { cardBySlug } from "@/lib/catalog";
-import { TIERS, formatInt, formatSerial, toFace, type CardData } from "@/lib/cards";
+import { FINISHES, TIERS, formatInt, formatSerial, toFace, type CardData, type Finish } from "@/lib/cards";
 import { getCardCirculation, getGarage, getViewer, isWished, type PlayerRef } from "@/lib/game";
 import { seriesOfCard } from "@/lib/series";
 import { Avatar } from "@/components/avatar";
@@ -97,7 +97,18 @@ async function CardDetail({ params }: { params: Promise<{ slug: string }> }) {
   ]);
   const wallet = viewer ? await getWallet() : null;
   const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Paris" }).format(new Date());
-  const mine = viewer ? circulation.copies.filter((c) => c.owner?.id === viewer.id) : [];
+  // Rare prints first, then the lowest number: the copy worth showing.
+  const mine = viewer
+    ? circulation.copies
+        .filter((c) => c.owner?.id === viewer.id)
+        .sort((a, b) => Number(a.finish === "standard") - Number(b.finish === "standard") || a.serial - b.serial)
+    : [];
+  // Every print of the car, how many came out, and how many are the viewer's.
+  const variants = (["standard", "holo", "vintage"] as const).map((finish) => ({
+    finish,
+    out: circulation.copies.filter((c) => c.finish === finish).length,
+    mine: mine.filter((c) => c.finish === finish).length,
+  }));
   const [garage, wished] = await Promise.all([
     viewer && mine.length > 0 ? getGarage(viewer.id) : [],
     viewer && mine.length === 0 ? isWished(viewer.id, card.slug) : false,
@@ -105,11 +116,11 @@ async function CardDetail({ params }: { params: Promise<{ slug: string }> }) {
   const shown = garage.find((copy) => copy.card.slug === card.slug);
 
   // Other owners, most copies first: the people to ask for a trade.
-  const owners = new Map<string, { player: PlayerRef; serials: number[] }>();
+  const owners = new Map<string, { player: PlayerRef; serials: { serial: number; finish: Finish }[] }>();
   for (const copy of circulation.copies) {
     if (!copy.owner || copy.owner.id === viewer?.id) continue;
     const entry = owners.get(copy.owner.id) ?? { player: copy.owner, serials: [] };
-    entry.serials.push(copy.serial);
+    entry.serials.push({ serial: copy.serial, finish: copy.finish });
     owners.set(copy.owner.id, entry);
   }
   const others = [...owners.values()].sort((a, b) => b.serials.length - a.serials.length);
@@ -125,6 +136,7 @@ async function CardDetail({ params }: { params: Promise<{ slug: string }> }) {
         <TradingCard
           card={toFace(card)}
           serial={mine[0]?.serial}
+          finish={mine[0]?.finish}
           className="w-64 sm:w-80"
           priority
         />
@@ -208,7 +220,8 @@ async function CardDetail({ params }: { params: Promise<{ slug: string }> }) {
                 <p className="text-sm">
                   <span className="font-semibold">Tu en as {mine.length}</span>
                   <span className="text-muted">
-                    {" "}: {mine.map((c) => formatSerial(c.serial, card.supply)).join(", ")}
+                    {" "}:{" "}
+                    <CopyLinks slug={card.slug} supply={card.supply} copies={mine} />
                   </span>
                 </p>
                 <ShowcaseButton
@@ -235,6 +248,37 @@ async function CardDetail({ params }: { params: Promise<{ slug: string }> }) {
               pour la chercher dans tes packs.
             </p>
           )}
+        </section>
+
+        <section className="mt-10 max-w-xl">
+          <h2 className="title-drop font-display text-lg sm:text-xl">Variantes</h2>
+          <p className="mt-1 text-sm text-muted">
+            Même voiture, trois tirages. Le tirage se décide à l&apos;ouverture : chaque copie a sa chance.
+          </p>
+          <ul className="mt-4 grid grid-cols-3 gap-3 sm:gap-5">
+            {variants.map((v) => (
+              <li key={v.finish} className="flex flex-col gap-2">
+                {/* Never pulled yet: shown as it would look, held back. */}
+                <div className={v.out === 0 ? "opacity-45" : undefined}>
+                  <TradingCard card={toFace(card)} finish={v.finish} className="w-full" />
+                </div>
+                <div className="text-center text-xs leading-snug sm:text-sm">
+                  <p className="font-extrabold">{FINISHES[v.finish].label}</p>
+                  <p className="text-muted">
+                    {v.finish === "standard" ? "Tirage courant" : `1 copie sur ${Math.round(1 / FINISHES[v.finish].odds)}`}
+                  </p>
+                  <p className="mt-0.5 text-muted tabular-nums">
+                    {v.out === 0 ? "Jamais tirée" : `${formatInt(v.out)} sortie${v.out > 1 ? "s" : ""}`}
+                  </p>
+                  {v.mine > 0 && (
+                    <p className="mt-1.5 inline-block rounded-full bg-green px-2 py-0.5 font-black text-[var(--green-ink)] shadow-[0_2px_0_var(--green-edge)]">
+                      {v.mine > 1 ? `Tu en as ${v.mine}` : "Tu l'as"}
+                    </p>
+                  )}
+                </div>
+              </li>
+            ))}
+          </ul>
         </section>
 
         <section className="mt-10 max-w-xl panel p-5">
@@ -324,15 +368,22 @@ async function CardDetail({ params }: { params: Promise<{ slug: string }> }) {
             <ul className="mt-4 divide-y divide-white/10 overflow-hidden panel ">
               {others.slice(0, 12).map(({ player, serials }) => (
                 <li key={player.id} className="flex items-center gap-3 px-4 py-3">
-                  <Link href={`/joueur/${player.handle}`} className="group flex min-w-0 flex-1 items-center gap-3">
-                    <Avatar player={player} size={36} />
+                  <div className="flex min-w-0 flex-1 items-center gap-3">
+                    <Link href={`/joueur/${player.handle}`} className="shrink-0">
+                      <Avatar player={player} size={36} />
+                    </Link>
                     <span className="min-w-0">
-                      <span className="block truncate font-extrabold group-hover:underline">{player.name}</span>
-                      <span className="block truncate text-sm text-muted tabular-nums">
-                        {serials.map((s) => formatSerial(s, card.supply)).join(", ")}
+                      <Link
+                        href={`/joueur/${player.handle}`}
+                        className="block truncate font-extrabold hover:underline"
+                      >
+                        {player.name}
+                      </Link>
+                      <span className="block truncate text-sm text-muted">
+                        <CopyLinks slug={card.slug} supply={card.supply} copies={serials} />
                       </span>
                     </span>
-                  </Link>
+                  </div>
                   {viewer && (
                     <Link
                       href={`/echanges/nouveau?avec=${player.handle}&carte=${card.slug}`}
@@ -351,4 +402,28 @@ async function CardDetail({ params }: { params: Promise<{ slug: string }> }) {
       </div>
     </div>
   );
+}
+
+/** Each number links to that copy's page and the players it went through. */
+function CopyLinks({
+  slug,
+  supply,
+  copies,
+}: {
+  slug: string;
+  supply: number | null;
+  copies: { serial: number; finish: Finish }[];
+}) {
+  return copies.map((c, i) => (
+    <span key={c.serial}>
+      {i > 0 && ", "}
+      <Link
+        href={`/cartes/${slug}/${c.serial}`}
+        className="tabular-nums underline decoration-white/25 underline-offset-4 hover:text-ink hover:decoration-current"
+      >
+        {formatSerial(c.serial, supply)}
+        {c.finish !== "standard" && ` ${FINISHES[c.finish].label.toLowerCase()}`}
+      </Link>
+    </span>
+  ));
 }
