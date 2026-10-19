@@ -1,0 +1,388 @@
+@import "tailwindcss";
+
+/* Kuruma: a mobile-standard card game on a deep indigo table.
+   Semantic tokens (bg, surface, ink, muted, line) describe the game UI;
+   card-* tokens describe the printed cards, which stay light objects. */
+:root {
+  --bg: #1d1656;
+  --bg-deep: #120c3c;
+  --surface: #2b2380;
+  --surface-hi: #372e9a;
+  --surface-lo: #211a68;
+  --ink: #ffffff;
+  --muted: #bdb6ee;
+  --line: #4a40aa;
+
+  /* Primary action and jetons: gold. */
+  --accent: #ffcc33;
+  --accent-hover: #ffd95e;
+  --accent-edge: #d48a00;
+  --accent-ink: #3b1f00;
+
+  --blue: #3d8bff;
+  --blue-edge: #1d5bd0;
+  --green: #2fd27a;
+  --green-edge: #149a52;
+  --green-ink: #03341a;
+  --danger: #ff4d6d;
+  --danger-edge: #c21f45;
+
+  --tier-common: #a9b1cf;
+  --tier-rare: #4fb0ff;
+  --tier-epic: #c77dff;
+  --tier-legendary: #ffbf2e;
+
+  --card-face: #ffffff;
+  --card-ink: #1a1442;
+  --card-muted: #5e5a86;
+  --card-line: #e3e0f3;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-bg-deep: var(--bg-deep);
+  --color-surface: var(--surface);
+  --color-surface-hi: var(--surface-hi);
+  --color-surface-lo: var(--surface-lo);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-ink: var(--accent-ink);
+  --color-blue: var(--blue);
+  --color-green: var(--green);
+  --color-danger: var(--danger);
+
+  --color-tier-common: var(--tier-common);
+  --color-tier-rare: var(--tier-rare);
+  --color-tier-epic: var(--tier-epic);
+  --color-tier-legendary: var(--tier-legendary);
+
+  --color-card-face: var(--card-face);
+  --color-card-ink: var(--card-ink);
+  --color-card-muted: var(--card-muted);
+  --color-card-line: var(--card-line);
+
+  --font-display: var(--font-russo);
+  --font-body: var(--font-nunito);
+
+  --shadow-card: 0 14px 28px -12px rgb(6 3 30 / 0.7), 0 2px 6px rgb(6 3 30 / 0.35);
+  --shadow-lift: 0 26px 44px -16px rgb(6 3 30 / 0.8), 0 4px 10px rgb(6 3 30 / 0.4);
+  --shadow-panel: inset 0 1px 0 rgb(255 255 255 / 0.1), 0 12px 28px -14px rgb(6 3 30 / 0.75);
+}
+
+html {
+  background: var(--bg-deep);
+  scrollbar-color: #5a50bf var(--bg-deep);
+}
+
+body {
+  color: var(--ink);
+  background-color: var(--bg);
+  /* Light pools over a faint diamond lattice, fixed like a play mat. */
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgb(124 92 255 / 0.45), transparent 70%),
+    radial-gradient(ellipse 60% 40% at 100% 40%, rgb(61 139 255 / 0.16), transparent 70%),
+    radial-gradient(ellipse 60% 40% at 0% 80%, rgb(199 125 255 / 0.14), transparent 70%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='44'%3E%3Cpath d='M22 0 44 22 22 44 0 22Z' fill='none' stroke='%23ffffff' stroke-opacity='0.035'/%3E%3C/svg%3E");
+  background-attachment: fixed;
+}
+
+/* Russo One ships one weight: never fake a bold. */
+.font-display {
+  font-synthesis: none;
+  letter-spacing: 0;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+input,
+textarea {
+  caret-color: var(--accent);
+}
+
+:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #9890d6;
+  opacity: 1;
+}
+
+select option {
+  background: var(--surface-lo);
+  color: var(--ink);
+}
+
+@media (max-width: 1023px) {
+  body:has(.mobile-tabs) {
+    padding-bottom: calc(5rem + env(safe-area-inset-bottom));
+  }
+}
+
+/* Display titles carry a dark drop, like every game HUD title. */
+@utility title-drop {
+  text-shadow: 0 3px 0 rgb(10 6 40 / 0.55);
+}
+
+@layer components {
+  /* Raised indigo panel with a lit top edge. */
+  .panel {
+    border-radius: 1.25rem;
+    background: linear-gradient(180deg, var(--surface-hi), var(--surface) 38%);
+    box-shadow: var(--shadow-panel);
+    outline: 1px solid rgb(255 255 255 / 0.06);
+    outline-offset: -1px;
+  }
+
+  .panel-sunken {
+    border-radius: 1rem;
+    background: var(--surface-lo);
+    box-shadow: inset 0 2px 6px rgb(6 3 30 / 0.45);
+  }
+
+  /* Chunky 3D buttons: a darker edge under the face, pressed on :active. */
+  .btn {
+    --face: var(--surface-hi);
+    --face-top: #4639b4;
+    --edge: #1a1458;
+    --label: var(--ink);
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 2.75rem;
+    padding: 0.625rem 1.25rem;
+    border-radius: 0.875rem;
+    font-weight: 900;
+    font-size: 0.9375rem;
+    line-height: 1.1;
+    color: var(--label);
+    background: linear-gradient(180deg, var(--face-top), var(--face));
+    box-shadow:
+      inset 0 2px 0 rgb(255 255 255 / 0.32),
+      0 4px 0 var(--edge),
+      0 10px 18px -6px rgb(6 3 30 / 0.6);
+    transform: translateY(0);
+    transition:
+      transform 120ms cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 120ms cubic-bezier(0.22, 1, 0.36, 1),
+      filter 150ms ease;
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .btn:hover:not(:disabled) {
+    filter: brightness(1.08);
+  }
+
+  .btn:active:not(:disabled) {
+    transform: translateY(3px);
+    box-shadow:
+      inset 0 2px 0 rgb(255 255 255 / 0.25),
+      0 1px 0 var(--edge),
+      0 4px 10px -4px rgb(6 3 30 / 0.6);
+  }
+
+  .btn:disabled {
+    --face: #3a3378;
+    --face-top: #3a3378;
+    --edge: #241e5a;
+    --label: #8f88c8;
+    cursor: not-allowed;
+  }
+
+  .btn-gold {
+    --face: #ffbf1f;
+    --face-top: #ffe066;
+    --edge: var(--accent-edge);
+    --label: var(--accent-ink);
+  }
+
+  .btn-blue {
+    --face: var(--blue);
+    --face-top: #6aa8ff;
+    --edge: var(--blue-edge);
+    --label: #ffffff;
+  }
+
+  .btn-green {
+    --face: var(--green);
+    --face-top: #6ff0a8;
+    --edge: var(--green-edge);
+    --label: var(--green-ink);
+  }
+
+  .btn-danger {
+    --face: var(--danger);
+    --face-top: #ff7d95;
+    --edge: var(--danger-edge);
+    --label: #ffffff;
+  }
+
+  .btn-lg {
+    min-height: 3.5rem;
+    padding: 0.875rem 1.75rem;
+    border-radius: 1.125rem;
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 1.125rem;
+    font-synthesis: none;
+  }
+
+  .btn-sm {
+    min-height: 2.25rem;
+    padding: 0.4rem 0.875rem;
+    border-radius: 0.75rem;
+    font-size: 0.8125rem;
+  }
+
+  /* Rounded HUD pill (jetons, packs). */
+  .hud-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    height: 2.375rem;
+    padding: 0 0.75rem 0 0.4rem;
+    border-radius: 9999px;
+    background: var(--bg-deep);
+    box-shadow: inset 0 2px 4px rgb(0 0 0 / 0.4), 0 1px 0 rgb(255 255 255 / 0.08);
+    font-weight: 900;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Text field sunk into the table. */
+  .field {
+    width: 100%;
+    min-height: 2.75rem;
+    border-radius: 0.875rem;
+    background: var(--bg-deep);
+    color: var(--ink);
+    padding: 0.625rem 1rem;
+    font-size: 0.9375rem;
+    font-weight: 700;
+    box-shadow: inset 0 2px 5px rgb(0 0 0 / 0.45), 0 1px 0 rgb(255 255 255 / 0.08);
+    outline: none;
+    transition: box-shadow 150ms ease;
+  }
+
+  .field:focus {
+    box-shadow: inset 0 2px 5px rgb(0 0 0 / 0.45), 0 0 0 3px var(--accent);
+  }
+
+  /* Progress gauge: sunk track, glossy fill. */
+  .gauge {
+    height: 0.75rem;
+    overflow: hidden;
+    border-radius: 9999px;
+    background: var(--bg-deep);
+    box-shadow: inset 0 2px 3px rgb(0 0 0 / 0.5);
+  }
+
+  .gauge > span {
+    display: block;
+    height: 100%;
+    min-width: 0.75rem;
+    border-radius: 9999px;
+    background: linear-gradient(180deg, #ffe680, #ffbf1f 55%, #f0a400);
+    box-shadow: inset 0 -2px 0 rgb(0 0 0 / 0.15);
+    transition: width 600ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .gauge-green > span {
+    background: linear-gradient(180deg, #8af5b8, #2fd27a 55%, #1cb463);
+  }
+
+  /* Count bubble on tabs and cards. */
+  .bubble {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.25rem;
+    height: 1.25rem;
+    padding: 0 0.3rem;
+    border-radius: 9999px;
+    background: var(--danger);
+    color: #fff;
+    font-size: 0.6875rem;
+    font-weight: 900;
+    font-variant-numeric: tabular-nums;
+    box-shadow: 0 2px 0 var(--danger-edge), 0 0 0 2px var(--bg-deep);
+  }
+}
+
+/* Idle shimmer for the legendary foil; pointer-driven foil lives in JS. */
+@keyframes foil-drift {
+  from {
+    background-position: 0% 50%;
+  }
+  to {
+    background-position: 200% 50%;
+  }
+}
+
+.foil-idle {
+  background-size: 200% 100%;
+  animation: foil-drift 6s linear infinite;
+}
+
+@keyframes pack-sheen {
+  0%,
+  60% {
+    transform: translateX(-120%) skewX(-18deg);
+  }
+  100% {
+    transform: translateX(220%) skewX(-18deg);
+  }
+}
+
+.pack-sheen {
+  animation: pack-sheen 3.6s ease-in-out infinite;
+}
+
+@keyframes pack-bob {
+  0%,
+  100% {
+    transform: translateY(0) rotate(var(--tilt, 0deg));
+  }
+  50% {
+    transform: translateY(-10px) rotate(var(--tilt, 0deg));
+  }
+}
+
+.pack-bob {
+  animation: pack-bob 3.4s ease-in-out infinite;
+}
+
+@keyframes pulse-ring {
+  0% {
+    box-shadow: 0 0 0 0 rgb(255 204 51 / 0.55);
+  }
+  100% {
+    box-shadow: 0 0 0 14px rgb(255 204 51 / 0);
+  }
+}
+
+.pulse-ring {
+  animation: pulse-ring 1.8s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

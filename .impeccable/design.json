@@ -1,0 +1,681 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-19T15:19:23.505400+00:00",
+  "title": "Design System: Kuruma",
+  "extensions": {
+    "colorMeta": {
+      "bg": {
+        "role": "neutral",
+        "displayName": "Table Indigo",
+        "canonical": "#1d1656",
+        "tonalRamp": [
+          "#090033",
+          "#1e1757",
+          "#373578",
+          "#53559a",
+          "#7175bd",
+          "#9196e2",
+          "#b9befd",
+          "#ebedfe"
+        ]
+      },
+      "bg-deep": {
+        "role": "neutral",
+        "displayName": "Deep Table",
+        "canonical": "#120c3c",
+        "tonalRamp": [
+          "#09012e",
+          "#1e1c4c",
+          "#38396c",
+          "#55578e",
+          "#7477b0",
+          "#9498d4",
+          "#b9befc",
+          "#ebedfe"
+        ]
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "Panel Indigo",
+        "canonical": "#2b2380",
+        "tonalRamp": [
+          "#080032",
+          "#1d0769",
+          "#332e8b",
+          "#4e4faf",
+          "#6b70d4",
+          "#8b93f9",
+          "#b7bffd",
+          "#ebedfe"
+        ]
+      },
+      "surface-hi": {
+        "role": "neutral",
+        "displayName": "Lit Indigo",
+        "canonical": "#372e9a",
+        "tonalRamp": [
+          "#080033",
+          "#1d056a",
+          "#332995",
+          "#4d4bb9",
+          "#6a6dde",
+          "#8b92fa",
+          "#b7bffe",
+          "#ebedfe"
+        ]
+      },
+      "surface-lo": {
+        "role": "neutral",
+        "displayName": "Slot Indigo",
+        "canonical": "#211a68",
+        "tonalRamp": [
+          "#080031",
+          "#1c1160",
+          "#333382",
+          "#4f53a5",
+          "#6d73c9",
+          "#8d95ee",
+          "#b7bffb",
+          "#eaedff"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "White",
+        "canonical": "#ffffff",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#242424",
+          "#404040",
+          "#5d5d5d",
+          "#7d7d7d",
+          "#9e9e9e",
+          "#c4c4c4",
+          "#eeeeee"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Lavender Mist",
+        "canonical": "#bdb6ee",
+        "tonalRamp": [
+          "#0d0129",
+          "#251b47",
+          "#403766",
+          "#5d5587",
+          "#7d75a9",
+          "#9d96cc",
+          "#c3bcf4",
+          "#eeecfe"
+        ]
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "Rule Indigo",
+        "canonical": "#4a40aa",
+        "tonalRamp": [
+          "#0a0031",
+          "#200667",
+          "#382891",
+          "#534bb5",
+          "#706cda",
+          "#9191f7",
+          "#babefc",
+          "#ecedfd"
+        ]
+      },
+      "accent": {
+        "role": "primary",
+        "displayName": "Jeton Gold",
+        "canonical": "#ffcc33",
+        "tonalRamp": [
+          "#120a00",
+          "#2f2200",
+          "#4f3d08",
+          "#745a02",
+          "#9a7802",
+          "#c09923",
+          "#efbd14",
+          "#feedc3"
+        ]
+      },
+      "accent-hover": {
+        "role": "primary",
+        "displayName": "Gold Glow",
+        "canonical": "#ffd95e",
+        "tonalRamp": [
+          "#120a00",
+          "#2e2300",
+          "#4e3e00",
+          "#715b07",
+          "#967a0b",
+          "#bc9b28",
+          "#e6c042",
+          "#fdeebf"
+        ]
+      },
+      "accent-edge": {
+        "role": "primary",
+        "displayName": "Burnt Gold Edge",
+        "canonical": "#d48a00",
+        "tonalRamp": [
+          "#170700",
+          "#351e00",
+          "#593701",
+          "#7f530d",
+          "#a96f14",
+          "#d68c08",
+          "#fab559",
+          "#ffebd4"
+        ]
+      },
+      "accent-ink": {
+        "role": "primary",
+        "displayName": "Cocoa Ink",
+        "canonical": "#3b1f00",
+        "tonalRamp": [
+          "#190500",
+          "#381c00",
+          "#56381a",
+          "#765638",
+          "#977657",
+          "#ba9777",
+          "#e1bc9b",
+          "#ffead8"
+        ]
+      },
+      "blue": {
+        "role": "secondary",
+        "displayName": "Arcade Blue",
+        "canonical": "#3d8bff",
+        "tonalRamp": [
+          "#000038",
+          "#002053",
+          "#023b86",
+          "#0f58bb",
+          "#2a78eb",
+          "#609efc",
+          "#a0c6ff",
+          "#e5effe"
+        ]
+      },
+      "blue-edge": {
+        "role": "secondary",
+        "displayName": "Arcade Blue Edge",
+        "canonical": "#1d5bd0",
+        "tonalRamp": [
+          "#000039",
+          "#001b5f",
+          "#003398",
+          "#1453c7",
+          "#3776ed",
+          "#679cfe",
+          "#a7c5fa",
+          "#e6efff"
+        ]
+      },
+      "green": {
+        "role": "secondary",
+        "displayName": "Claim Green",
+        "canonical": "#2fd27a",
+        "tonalRamp": [
+          "#001003",
+          "#002d13",
+          "#0d4c29",
+          "#09703d",
+          "#0e9552",
+          "#2ebb6d",
+          "#4ae58c",
+          "#c7ffd7"
+        ]
+      },
+      "green-edge": {
+        "role": "secondary",
+        "displayName": "Claim Green Edge",
+        "canonical": "#149a52",
+        "tonalRamp": [
+          "#001003",
+          "#022d14",
+          "#0b4d27",
+          "#067039",
+          "#08964e",
+          "#42b96f",
+          "#6de093",
+          "#c6ffd5"
+        ]
+      },
+      "green-ink": {
+        "role": "secondary",
+        "displayName": "Claim Green Ink",
+        "canonical": "#03341a",
+        "tonalRamp": [
+          "#001004",
+          "#002d14",
+          "#1d4a2f",
+          "#3c694c",
+          "#5c8a6b",
+          "#7dab8b",
+          "#a2d2b0",
+          "#cbfdda"
+        ]
+      },
+      "danger": {
+        "role": "secondary",
+        "displayName": "Alert Coral",
+        "canonical": "#ff4d6d",
+        "tonalRamp": [
+          "#220003",
+          "#490114",
+          "#780a27",
+          "#af003a",
+          "#df2953",
+          "#fe6078",
+          "#ffa9af",
+          "#fee9e9"
+        ]
+      },
+      "danger-edge": {
+        "role": "secondary",
+        "displayName": "Alert Coral Edge",
+        "canonical": "#c21f45",
+        "tonalRamp": [
+          "#200003",
+          "#4a0013",
+          "#790826",
+          "#a91b3c",
+          "#d83856",
+          "#f7687a",
+          "#faacb0",
+          "#fee8e9"
+        ]
+      },
+      "tier-common": {
+        "role": "tertiary",
+        "displayName": "Common Steel",
+        "canonical": "#a9b1cf",
+        "tonalRamp": [
+          "#06091d",
+          "#1d2239",
+          "#383e57",
+          "#555c77",
+          "#757c98",
+          "#959dba",
+          "#bbc3e1",
+          "#e9eeff"
+        ]
+      },
+      "tier-rare": {
+        "role": "tertiary",
+        "displayName": "Rare Sky",
+        "canonical": "#4fb0ff",
+        "tonalRamp": [
+          "#000c1f",
+          "#002643",
+          "#00436f",
+          "#0d629c",
+          "#1483ce",
+          "#43a5f3",
+          "#96caf9",
+          "#e2f1fe"
+        ]
+      },
+      "tier-epic": {
+        "role": "tertiary",
+        "displayName": "Epic Violet",
+        "canonical": "#c77dff",
+        "tonalRamp": [
+          "#160027",
+          "#350351",
+          "#5a1083",
+          "#7d30ae",
+          "#9e54d3",
+          "#c177f8",
+          "#d9b0fd",
+          "#f4eafe"
+        ]
+      },
+      "tier-legendary": {
+        "role": "tertiary",
+        "displayName": "Legendary Gold",
+        "canonical": "#ffbf2e",
+        "tonalRamp": [
+          "#140800",
+          "#312100",
+          "#543b00",
+          "#785708",
+          "#a0750d",
+          "#c79529",
+          "#f8b821",
+          "#feeccc"
+        ]
+      },
+      "card-face": {
+        "role": "neutral",
+        "displayName": "Card White",
+        "canonical": "#ffffff",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#242424",
+          "#404040",
+          "#5d5d5d",
+          "#7d7d7d",
+          "#9e9e9e",
+          "#c4c4c4",
+          "#eeeeee"
+        ]
+      },
+      "card-ink": {
+        "role": "neutral",
+        "displayName": "Card Ink",
+        "canonical": "#1a1442",
+        "tonalRamp": [
+          "#0a012c",
+          "#201c4a",
+          "#3b386a",
+          "#58578b",
+          "#7777ae",
+          "#9798d1",
+          "#bdbef9",
+          "#ecedfe"
+        ]
+      },
+      "card-muted": {
+        "role": "neutral",
+        "displayName": "Card Muted",
+        "canonical": "#5e5a86",
+        "tonalRamp": [
+          "#0c0326",
+          "#231d43",
+          "#3e3962",
+          "#5b5783",
+          "#7b77a5",
+          "#9b98c8",
+          "#c1bef0",
+          "#edecff"
+        ]
+      },
+      "card-line": {
+        "role": "neutral",
+        "displayName": "Card Line",
+        "canonical": "#e3e0f3",
+        "tonalRamp": [
+          "#0c0915",
+          "#242230",
+          "#403d4c",
+          "#5e5b6b",
+          "#7d7b8c",
+          "#9f9cad",
+          "#c4c1d4",
+          "#efecff"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Landing headline only; white Russo One with the title drop, second line gold."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Page titles (PageHeader, 404), 2rem mobile to 2.75rem."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Section and step titles, large button labels, balances."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Reading text in Nunito, usually muted, max about 36rem."
+      },
+      "body-strong": {
+        "displayName": "Body Strong",
+        "purpose": "Buttons, tabs, chips, pills and numbers (tabular)."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Uppercase data captions only: table headers, odds blocks, trade columns."
+      }
+    },
+    "shadows": [
+      {
+        "name": "panel",
+        "value": "inset 0 1px 0 rgb(255 255 255 / 0.1), 0 12px 28px -14px rgb(6 3 30 / 0.75)",
+        "purpose": "Raised panels with a lit top edge."
+      },
+      {
+        "name": "sunken",
+        "value": "inset 0 2px 6px rgb(6 3 30 / 0.45)",
+        "purpose": "Slots, empty states, skeletons."
+      },
+      {
+        "name": "hud-inset",
+        "value": "inset 0 2px 4px rgb(0 0 0 / 0.4), 0 1px 0 rgb(255 255 255 / 0.08)",
+        "purpose": "HUD pills and fields pressed into the table."
+      },
+      {
+        "name": "button-edge",
+        "value": "inset 0 2px 0 rgb(255 255 255 / 0.32), 0 4px 0 var(--edge), 0 10px 18px -6px rgb(6 3 30 / 0.6)",
+        "purpose": "3D button at rest."
+      },
+      {
+        "name": "button-pressed",
+        "value": "inset 0 2px 0 rgb(255 255 255 / 0.25), 0 1px 0 var(--edge), 0 4px 10px -4px rgb(6 3 30 / 0.6)",
+        "purpose": "3D button on :active, with translateY(3px)."
+      },
+      {
+        "name": "card",
+        "value": "0 14px 28px -12px rgb(6 3 30 / 0.7), 0 2px 6px rgb(6 3 30 / 0.35)",
+        "purpose": "Card faces and backs."
+      },
+      {
+        "name": "lift",
+        "value": "0 26px 44px -16px rgb(6 3 30 / 0.8), 0 4px 10px rgb(6 3 30 / 0.4)",
+        "purpose": "Cards lifted or hovered high."
+      },
+      {
+        "name": "title-drop",
+        "value": "0 3px 0 rgb(10 6 40 / 0.55)",
+        "purpose": "text-shadow on every Russo One title."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-out-expo",
+        "value": "cubic-bezier(0.22, 1, 0.36, 1)",
+        "purpose": "Default ease-out: button press (120ms), pack picks (300ms), gauge fill (600ms), reveals."
+      },
+      {
+        "name": "ease-out-sweep",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Foil sweep on a legendary reveal (1.2s)."
+      },
+      {
+        "name": "ease-in-exit",
+        "value": "cubic-bezier(0.4, 0, 1, 1)",
+        "purpose": "Exits during the pack opening."
+      },
+      {
+        "name": "card-tilt-spring",
+        "value": "stiffness 260, damping 22",
+        "purpose": "Pointer tilt on interactive cards (max 9deg / 11deg)."
+      },
+      {
+        "name": "foil-drift",
+        "value": "6s linear infinite",
+        "purpose": "Idle legendary holo."
+      },
+      {
+        "name": "pack-bob",
+        "value": "3.4s ease-in-out infinite",
+        "purpose": "Floating booster."
+      },
+      {
+        "name": "pulse-ring",
+        "value": "1.8s infinite, gold",
+        "purpose": "Raised Boosters tab when packs are waiting."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "prefers-reduced-motion: reduce",
+        "purpose": "All animation and transitions collapse; cards show their face directly."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "sm",
+        "value": "640px"
+      },
+      {
+        "name": "lg",
+        "value": "1024px",
+        "note": "Below: fixed bottom tab bar; from here: header tabs."
+      },
+      {
+        "name": "xl",
+        "value": "1280px"
+      }
+    ],
+    "background": {
+      "value": "radial violet pool at top (rgb 124 92 255 / 0.45), blue pool right (rgb 61 139 255 / 0.16), violet pool left (rgb 199 125 255 / 0.14), 44px diamond lattice at 3.5% white, background-attachment fixed",
+      "purpose": "The game table."
+    }
+  },
+  "components": [
+    {
+      "name": "Primary Button (gold)",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The screen's one main action: gold face on a burnt-gold edge, dark ink, presses down.",
+      "html": "<div class=\"ds-table\"><button class=\"ds-btn ds-btn-gold\">Ouvrir le pack</button> <button class=\"ds-btn ds-btn-gold ds-btn-lg\">Jouer</button></div>",
+      "css": ".ds-table{background:#1d1656;padding:24px;}.ds-btn{--face:var(--surface-hi,#372e9a);--face-top:#4639b4;--edge:#1a1458;--label:#fff;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:10px 20px;border:0;border-radius:14px;font-family:var(--font-nunito,Nunito),sans-serif;font-weight:900;font-size:15px;line-height:1.1;color:var(--label);background:linear-gradient(180deg,var(--face-top),var(--face));box-shadow:inset 0 2px 0 rgb(255 255 255/.32),0 4px 0 var(--edge),0 10px 18px -6px rgb(6 3 30/.6);transition:transform 120ms cubic-bezier(.22,1,.36,1),box-shadow 120ms cubic-bezier(.22,1,.36,1),filter 150ms ease;cursor:pointer}.ds-btn:hover{filter:brightness(1.08)}.ds-btn:focus-visible{outline:3px solid #ffcc33;outline-offset:3px}.ds-btn:active{transform:translateY(3px);box-shadow:inset 0 2px 0 rgb(255 255 255/.25),0 1px 0 var(--edge),0 4px 10px -4px rgb(6 3 30/.6)}.ds-btn-gold{--face:#ffbf1f;--face-top:#ffe066;--edge:#d48a00;--label:#3b1f00}.ds-btn-lg{min-height:56px;padding:14px 28px;border-radius:18px;font-family:var(--font-russo,'Russo One'),sans-serif;font-weight:400;font-size:18px}"
+    },
+    {
+      "name": "Secondary Button (blue)",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Secondary actions.",
+      "html": "<div class=\"ds-table\"><button class=\"ds-btn ds-btn-blue\">Proposer un échange</button></div>",
+      "css": ".ds-table{background:#1d1656;padding:24px;}.ds-btn{--face:var(--surface-hi,#372e9a);--face-top:#4639b4;--edge:#1a1458;--label:#fff;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:10px 20px;border:0;border-radius:14px;font-family:var(--font-nunito,Nunito),sans-serif;font-weight:900;font-size:15px;line-height:1.1;color:var(--label);background:linear-gradient(180deg,var(--face-top),var(--face));box-shadow:inset 0 2px 0 rgb(255 255 255/.32),0 4px 0 var(--edge),0 10px 18px -6px rgb(6 3 30/.6);transition:transform 120ms cubic-bezier(.22,1,.36,1),box-shadow 120ms cubic-bezier(.22,1,.36,1),filter 150ms ease;cursor:pointer}.ds-btn:hover{filter:brightness(1.08)}.ds-btn:focus-visible{outline:3px solid #ffcc33;outline-offset:3px}.ds-btn:active{transform:translateY(3px);box-shadow:inset 0 2px 0 rgb(255 255 255/.25),0 1px 0 var(--edge),0 4px 10px -4px rgb(6 3 30/.6)}.ds-btn-blue{--face:#3d8bff;--face-top:#6aa8ff;--edge:#1d5bd0;--label:#fff}"
+    },
+    {
+      "name": "Claim Button (green)",
+      "kind": "button",
+      "refersTo": "button-claim",
+      "description": "Rewards ready to collect; dark green ink.",
+      "html": "<div class=\"ds-table\"><button class=\"ds-btn ds-btn-green\">Réclamer</button></div>",
+      "css": ".ds-table{background:#1d1656;padding:24px;}.ds-btn{--face:var(--surface-hi,#372e9a);--face-top:#4639b4;--edge:#1a1458;--label:#fff;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:10px 20px;border:0;border-radius:14px;font-family:var(--font-nunito,Nunito),sans-serif;font-weight:900;font-size:15px;line-height:1.1;color:var(--label);background:linear-gradient(180deg,var(--face-top),var(--face));box-shadow:inset 0 2px 0 rgb(255 255 255/.32),0 4px 0 var(--edge),0 10px 18px -6px rgb(6 3 30/.6);transition:transform 120ms cubic-bezier(.22,1,.36,1),box-shadow 120ms cubic-bezier(.22,1,.36,1),filter 150ms ease;cursor:pointer}.ds-btn:hover{filter:brightness(1.08)}.ds-btn:focus-visible{outline:3px solid #ffcc33;outline-offset:3px}.ds-btn:active{transform:translateY(3px);box-shadow:inset 0 2px 0 rgb(255 255 255/.25),0 1px 0 var(--edge),0 4px 10px -4px rgb(6 3 30/.6)}.ds-btn-green{--face:#2fd27a;--face-top:#6ff0a8;--edge:#149a52;--label:#03341a}"
+    },
+    {
+      "name": "Neutral and Danger Buttons",
+      "kind": "button",
+      "refersTo": "button-neutral",
+      "description": "Indigo ghost-equivalent and destructive coral.",
+      "html": "<div class=\"ds-table\"><button class=\"ds-btn\">Annuler</button> <button class=\"ds-btn ds-btn-danger\">Supprimer</button></div>",
+      "css": ".ds-table{background:#1d1656;padding:24px;}.ds-btn{--face:var(--surface-hi,#372e9a);--face-top:#4639b4;--edge:#1a1458;--label:#fff;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:10px 20px;border:0;border-radius:14px;font-family:var(--font-nunito,Nunito),sans-serif;font-weight:900;font-size:15px;line-height:1.1;color:var(--label);background:linear-gradient(180deg,var(--face-top),var(--face));box-shadow:inset 0 2px 0 rgb(255 255 255/.32),0 4px 0 var(--edge),0 10px 18px -6px rgb(6 3 30/.6);transition:transform 120ms cubic-bezier(.22,1,.36,1),box-shadow 120ms cubic-bezier(.22,1,.36,1),filter 150ms ease;cursor:pointer}.ds-btn:hover{filter:brightness(1.08)}.ds-btn:focus-visible{outline:3px solid #ffcc33;outline-offset:3px}.ds-btn:active{transform:translateY(3px);box-shadow:inset 0 2px 0 rgb(255 255 255/.25),0 1px 0 var(--edge),0 4px 10px -4px rgb(6 3 30/.6)}.ds-btn-danger{--face:#ff4d6d;--face-top:#ff7d95;--edge:#c21f45;--label:#fff}"
+    },
+    {
+      "name": "Text Field",
+      "kind": "input",
+      "refersTo": "field",
+      "description": "A slot sunk into the table with a gold focus ring.",
+      "html": "<div class=\"ds-table\"><input class=\"ds-field\" placeholder=\"Rechercher une voiture\"></div>",
+      "css": ".ds-table{background:#1d1656;padding:24px;}.ds-field{width:100%;min-height:44px;border:0;border-radius:14px;background:#120c3c;color:#fff;padding:10px 16px;font-family:var(--font-nunito,Nunito),sans-serif;font-size:15px;font-weight:700;caret-color:#ffcc33;box-shadow:inset 0 2px 5px rgb(0 0 0/.45),0 1px 0 rgb(255 255 255/.08);outline:none;transition:box-shadow 150ms ease}.ds-field::placeholder{color:#9890d6}.ds-field:focus{box-shadow:inset 0 2px 5px rgb(0 0 0/.45),0 0 0 3px #ffcc33}"
+    },
+    {
+      "name": "HUD Pill and Count Bubble",
+      "kind": "chip",
+      "refersTo": "hud-pill",
+      "description": "Jeton balance pill and the coral count bubble.",
+      "html": "<div class=\"ds-table\"><a class=\"ds-pill\" href=\"#\"><svg viewBox=\"0 0 24 24\" width=\"24\" height=\"24\" aria-hidden=\"true\"><defs><linearGradient id=\"dsj\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#ffe680\"/><stop offset=\".55\" stop-color=\"#ffbf1f\"/><stop offset=\"1\" stop-color=\"#e89a00\"/></linearGradient></defs><circle cx=\"12\" cy=\"13\" r=\"10\" fill=\"#b36b00\"/><circle cx=\"12\" cy=\"11.5\" r=\"10\" fill=\"url(#dsj)\"/><circle cx=\"12\" cy=\"11.5\" r=\"7.2\" fill=\"none\" stroke=\"#c98200\" stroke-opacity=\".55\" stroke-width=\"1.2\"/><path d=\"M12 6.8 16.7 11.5 12 16.2 7.3 11.5Z\" fill=\"#c98200\" fill-opacity=\".75\"/></svg>1 340</a> <span class=\"ds-bubble\">3</span></div>",
+      "css": ".ds-table{background:#1d1656;padding:24px;display:flex;gap:12px;align-items:center}.ds-pill{display:inline-flex;align-items:center;gap:6px;height:38px;padding:0 12px 0 6px;border-radius:9999px;background:#120c3c;color:#fff;text-decoration:none;font-family:var(--font-nunito,Nunito),sans-serif;font-weight:900;font-size:14px;font-variant-numeric:tabular-nums;box-shadow:inset 0 2px 4px rgb(0 0 0/.4),0 1px 0 rgb(255 255 255/.08);transition:filter 150ms}.ds-pill:hover{filter:brightness(1.25)}.ds-pill:focus-visible{outline:3px solid #ffcc33;outline-offset:3px}.ds-bubble{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 5px;border-radius:9999px;background:#ff4d6d;color:#fff;font:900 11px var(--font-nunito,Nunito),sans-serif;box-shadow:0 2px 0 #c21f45,0 0 0 2px #120c3c}"
+    },
+    {
+      "name": "Panel and Sunken Slot",
+      "kind": "card",
+      "refersTo": "panel",
+      "description": "Raised indigo panel with a lit top edge, holding a sunken slot and a gold gauge.",
+      "html": "<div class=\"ds-table\"><div class=\"ds-panel\"><h3 class=\"ds-title\">7/10 packs gratuits</h3><div class=\"ds-gauge\"><span style=\"width:70%\"></span></div><div class=\"ds-sunken\">Rien ici pour l'instant.</div></div></div>",
+      "css": ".ds-table{background:#1d1656;padding:24px;}.ds-panel{border-radius:20px;padding:20px;color:#fff;background:linear-gradient(180deg,#372e9a,#2b2380 38%);box-shadow:inset 0 1px 0 rgb(255 255 255/.1),0 12px 28px -14px rgb(6 3 30/.75);outline:1px solid rgb(255 255 255/.06);outline-offset:-1px;font-family:var(--font-nunito,Nunito),sans-serif}.ds-title{margin:0 0 12px;font-family:var(--font-russo,'Russo One'),sans-serif;font-weight:400;font-size:24px;text-shadow:0 3px 0 rgb(10 6 40/.55)}.ds-gauge{height:12px;border-radius:9999px;background:#120c3c;box-shadow:inset 0 2px 3px rgb(0 0 0/.5);overflow:hidden;margin-bottom:16px}.ds-gauge>span{display:block;height:100%;border-radius:9999px;background:linear-gradient(180deg,#ffe680,#ffbf1f 55%,#f0a400);box-shadow:inset 0 -2px 0 rgb(0 0 0/.15)}.ds-sunken{border-radius:16px;background:#211a68;box-shadow:inset 0 2px 6px rgb(6 3 30/.45);padding:24px;text-align:center;color:#bdb6ee;font-size:14px}"
+    },
+    {
+      "name": "Game Navigation Tabs",
+      "kind": "nav",
+      "refersTo": "nav",
+      "description": "Desktop HUD tabs: muted at rest, active white with gold icon and gold underline.",
+      "html": "<nav class=\"ds-nav\"><a class=\"ds-tab is-active\" href=\"#\"><svg viewBox=\"0 0 24 24\" width=\"18\" height=\"18\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M6 2.5h12l-.5 2v15l.5 2H6l.5-2v-15z\"/><path d=\"M9 8h7l-1 5H8z\" fill=\"currentColor\" stroke=\"none\"/></svg>Boosters</a><a class=\"ds-tab\" href=\"#\">Collection</a><a class=\"ds-tab\" href=\"#\">Échanges</a></nav>",
+      "css": ".ds-nav{display:flex;gap:4px;align-items:center;height:64px;padding:0 16px;background:rgb(18 12 60/.9);border-bottom:1px solid rgb(255 255 255/.1)}.ds-tab{position:relative;display:inline-flex;align-items:center;gap:6px;height:44px;padding:0 12px;border-radius:12px;color:#bdb6ee;text-decoration:none;font:800 14px var(--font-nunito,Nunito),sans-serif;transition:background 150ms,color 150ms}.ds-tab:hover{background:rgb(255 255 255/.05);color:#fff}.ds-tab:focus-visible{outline:3px solid #ffcc33;outline-offset:3px}.ds-tab.is-active{background:rgb(255 255 255/.1);color:#fff}.ds-tab.is-active svg{color:#ffcc33}.ds-tab.is-active::after{content:'';position:absolute;left:12px;right:12px;bottom:-10px;height:3px;border-radius:9999px;background:#ffcc33}"
+    },
+    {
+      "name": "Trading Card",
+      "kind": "custom",
+      "refersTo": "trading-card",
+      "description": "White printed card on a tier frame (epic shown): two-line name, 10:9 photo window, stat chips, rarity diamonds and serial.",
+      "html": "<div class=\"ds-table\"><div class=\"ds-card\"><div class=\"ds-face\"><div class=\"ds-name\">Lancia Stratos HF</div><div class=\"ds-photo\"></div><div class=\"ds-stats\"><span class=\"ds-brand\">Lancia</span><span><i>Euro</i><i>1973</i><i>280 ch</i></span></div><div class=\"ds-foot\"><span><svg width=\"9\" height=\"9\" viewBox=\"0 0 10 10\"><path d=\"M5 .6 9.4 5 5 9.4.6 5Z\" fill=\"#c77dff\"/></svg><svg width=\"9\" height=\"9\" viewBox=\"0 0 10 10\"><path d=\"M5 .6 9.4 5 5 9.4.6 5Z\" fill=\"#c77dff\"/></svg><svg width=\"9\" height=\"9\" viewBox=\"0 0 10 10\"><path d=\"M5 .6 9.4 5 5 9.4.6 5Z\" fill=\"#c77dff\"/></svg></span><span>#12 / 492</span></div></div></div></div>",
+      "css": ".ds-table{background:#1d1656;padding:24px;}.ds-card{width:176px;aspect-ratio:5/7;border-radius:14px;padding:5px;background:linear-gradient(145deg,#ecc9ff,#9b4dff 48%,#f3dcff);box-shadow:0 14px 28px -12px rgb(6 3 30/.7),0 2px 6px rgb(6 3 30/.35);transition:transform 300ms cubic-bezier(.22,1,.36,1)}.ds-card:hover{transform:translateY(-4px) rotate(-1deg)}.ds-face{height:100%;display:flex;flex-direction:column;overflow:hidden;border-radius:10px;background:#fff;color:#1a1442;font-family:var(--font-nunito,Nunito),sans-serif}.ds-name{padding:7px 10px 6px;font-weight:900;font-size:11px;line-height:1.15}.ds-photo{margin:0 5px;aspect-ratio:10/9;border-radius:7px;background:linear-gradient(160deg,#4fb0ff,#1a1442)}.ds-stats{flex:1;display:flex;flex-direction:column;justify-content:space-evenly;padding:4px 8px;font-size:8px;font-weight:800}.ds-brand{color:#5e5a86}.ds-stats i{font-style:normal;background:#e3e0f3;border-radius:9999px;padding:1px 4px;margin-right:3px}.ds-foot{display:flex;justify-content:space-between;align-items:center;border-top:1px solid #e3e0f3;padding:6px 10px;font-size:8px;color:#5e5a86}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Game Table",
+    "overview": "**Creative North Star: \"The Game Table\"**\n\nKuruma is a mobile-standard collectible card game played straight, at the craft bar of Pokémon TCG Pocket and Marvel Snap. The player always knows it is a game, never a dashboard. Everything sits on a deep saturated indigo table: soft violet light pools and a faint diamond lattice fixed to the viewport like a play mat, raised indigo panels with a lit top edge, sunken slots and HUD pills pressed into the table. Gold is the action and the money: the primary button, the jetons, the active tab, the focus ring.\n\nControls are chunky and physical. Every button has a darker edge under its face and presses down on tap. Titles are set in Russo One, white, with a dark drop like a game HUD; everything read is Nunito, heavy where it is a control or a number. The cards are the one light thing on the table: white printed objects with a tier-coloured frame, a real car photo, stat chips and rarity diamonds, foil on legendaries. Boosters share one printed template and change only their colour, car and theme, one colour per car culture.\n\nThe density is mobile-first: a sticky HUD header, a five-tab bottom bar on phones with the Boosters button raised in the middle, big claimable moments for every reward. The system replaces an airy white SaaS layout and refuses to drift back to it. Site copy is French.",
+    "keyCharacteristics": [
+      "Deep indigo ground with violet light pools and a 44px diamond lattice, fixed.",
+      "Raised panels (lit top edge, soft drop) and sunken slots (inner shadow) as the two surface states.",
+      "Chunky 3D buttons in five faces (gold, blue, green, danger, neutral indigo) with a solid bottom edge that presses on :active.",
+      "Russo One titles with a dark drop; Nunito 800–900 for controls and numbers.",
+      "Cards are white physical objects with tier frames; legendaries carry an iridescent holo film.",
+      "One shared booster template, one accent per pack."
+    ],
+    "rules": [
+      {
+        "name": "The Gold Means Go Rule",
+        "body": "Gold is the screen's main action and the currency, nothing else. One gold button per view; secondary actions go blue or neutral.",
+        "section": "colors"
+      },
+      {
+        "name": "The Dark Ink On Bright Faces Rule",
+        "body": "Gold and green faces carry dark ink (accent-ink, green-ink); only blue, danger and indigo faces carry white.",
+        "section": "colors"
+      },
+      {
+        "name": "The Tier Colours Are Rarity Rule",
+        "body": "The four tier hues appear only where a rarity is being stated.",
+        "section": "colors"
+      },
+      {
+        "name": "The Drop Shadow Title Rule",
+        "body": "Every Russo One title on the table carries the title drop (a 3px dark shadow straight down). Body text never does.",
+        "section": "typography"
+      },
+      {
+        "name": "The One Weight Rule",
+        "body": "Russo One ships one weight with font-synthesis off; never request bold or tracking on it.",
+        "section": "typography"
+      },
+      {
+        "name": "The Pressed Edge Rule",
+        "body": "The solid bottom edge under a button is its own darker colour, directly beneath (no sideways offset), and it collapses when pressed. It belongs to buttons, count bubbles and the raised Boosters tab only.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Raised Or Sunken Rule",
+        "body": "A surface on the table is either raised (panel) or pressed in (sunken). There are no flat bordered boxes.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "**Do** put every surface on the indigo table as raised panel or sunken slot, with indigo-tinted shadows.",
+      "**Do** make the screen's main action the gold 3D button, and keep it to one per view.",
+      "**Do** set titles in Russo One with the title drop, and everything read in Nunito.",
+      "**Do** keep cards white with their tier frame; rarity is told by frame colour and diamonds.",
+      "**Do** draw new boosters from the shared template, changing only colour, car, theme line and perk, and keep the colour in sync with lib/packs.ts.",
+      "**Do** use springs and the exponential ease-out (cubic-bezier(0.22, 1, 0.36, 1)) and respect reduced motion."
+    ],
+    "donts": [
+      "**Don't** return to light, airy white SaaS surfaces; white belongs to the cards.",
+      "**Don't** put white text on gold or green faces.",
+      "**Don't** use tier colours for anything but rarity, or pack accents outside booster art.",
+      "**Don't** bold or track Russo One, or use it for paragraphs.",
+      "**Don't** put small uppercase labels above titles; the uppercase label is for data captions only."
+    ]
+  }
+}

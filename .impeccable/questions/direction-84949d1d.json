@@ -1,0 +1,131 @@
+{
+  "title": "Kuruma — choisir le nouveau monde visuel",
+  "question": "Le tirage a assigné « Plaques du monde ». Garde-le, prends une alternative, ou relance.",
+  "options": [
+    {
+      "id": "assigned",
+      "label": "Plaques du monde",
+      "kicker": "THE ROLL",
+      "lineage": "Plaques d'immatriculation embouties : JP vert/blanc, kei jaune, UE bande bleue, US state plates",
+      "thesis": "Chaque culture auto a sa plaque : le jeu entier est frappé dans l'alu réfléchissant des plaques du monde.",
+      "palette": ["#22252b", "#f6f4ec", "#f2c230", "#1f3fa6", "#1e7a46", "#c8312b"],
+      "materials": ["aluminium embouti", "film rétroréfléchissant", "vignettes de contrôle autocollantes", "asphalte et ligne jaune"],
+      "viewport": "Sur un fond asphalte, une rangée de plaques géantes (JP, UE, US, kei) qui s'allument au passage du pointeur comme dans des phares ; le titre embouti au centre, le bouton Discord est une plaque jaune.",
+      "risk": "Peut virer au costume si les plaques restent décoratives au lieu de porter la navigation, les packs et la rareté.",
+      "raised": [
+        {"from": "challenger-vu", "raise": "La collection est une seule rangée de plaques identiques qu'on lit d'un balayage, jamais un tableau de bord en panneaux."},
+        {"from": "challenger-soundsystem", "raise": "Le rang se lit à la taille : classement et rareté agrandissent la typo, le premier joueur et la légendaire sont les plus gros."},
+        {"from": "challenger-civic", "raise": "Toute la couleur va à un seul endroit par écran : la plaque de la culture active, le reste reste asphalte et alu."},
+        {"from": "challenger-shader", "raise": "La technique est construite, pas imitée : le film réfléchissant flashe vraiment sous le pointeur comme sous des phares."},
+        {"from": "challenger-accretion", "raise": "Chaque état est un matériau : plaque possédée emboutie et éclairée, manquante en flan vierge, verrouillée sous cache."},
+        {"from": "challenger-provenance", "raise": "Chaque exemplaire porte son numéro frappé comme un VIN, un objet possédé avec son histoire."}
+      ]
+    },
+    {
+      "id": "model-pick",
+      "label": "Blister die-cast",
+      "kicker": "IMPECCABLE’S PICK",
+      "lineage": "Cartes blister des miniatures (Tomica, Matchbox, die-cast 1:64)",
+      "thesis": "Le collectionneur de voitures connaît déjà le rituel : la carte cartonnée saturée, la bulle plastique, le numéro de série.",
+      "palette": ["#ff6a13", "#1342c9", "#ffd21f", "#ffffff", "#c9ced6", "#14161c"],
+      "materials": ["carton imprimé saturé", "bulle PET brillante", "trou de suspension", "badges numérotés"],
+      "viewport": "Un mur de présentoir orange vif : trois blisters suspendus, la voiture dans sa bulle, le titre en capitales italiques grasses, le bouton Discord comme pastille « NEW ».",
+      "risk": "C'est la référence la plus évidente pour des voitures à collectionner, et elle frôle l'habillage d'une marque de jouets existante."
+    },
+    {
+      "id": "challenger-soundsystem",
+      "label": "Affiche sound system",
+      "verdict": "declined",
+      "lineage": "Affiches de dance jamaïcaines sérigraphiées sur carton fluo",
+      "thesis": "Les packs et joueurs affichés comme une programmation, classés par taille.",
+      "palette": ["#f7e61c", "#ff4fa3", "#111111", "#f4efe2"],
+      "materials": ["carton fluo", "encre sérigraphiée", "capitales détourées"],
+      "viewport": "Noms de packs empilés en capitales détourées, la date du prochain pack barrée au centre.",
+      "risk": "Le monde de la fête prend le pas sur la culture auto.",
+      "case": "Fusion moyenne : les flyers de meetings auto existent, mais le joueur s'identifie moins qu'aux plaques.",
+      "kept": "Le rang se lit à la taille (repris sur la direction assignée).",
+      "hero": "https://impeccable.style/worlds/cards/posters-covers-sleeves-soundsystem-dance-poster-hero.webp"
+    },
+    {
+      "id": "challenger-vu",
+      "label": "Rangée de vumètres",
+      "verdict": "declined",
+      "lineage": "Pont de vumètres d'une console d'enregistrement",
+      "thesis": "La collection comme une rangée d'aiguilles identiques.",
+      "palette": ["#efe6cf", "#141414", "#5a3b22", "#c8312b"],
+      "materials": ["cadrans ivoire sous verre", "noyer", "acier"],
+      "viewport": "Une rangée de cadrans qui montent ensemble à l'ouverture d'un pack.",
+      "risk": "Aucun lien avec la voiture ni la carte.",
+      "case": "Fusion faible : l'audience ne s'y reconnaît pas et l'offre devient illisible.",
+      "kept": "Des unités identiques lues comme un seul instrument.",
+      "hero": "https://impeccable.style/worlds/cards/signals-instruments-vu-meter-bridge-hero.webp"
+    },
+    {
+      "id": "challenger-shader",
+      "label": "Portail shader",
+      "verdict": "declined",
+      "lineage": "Sites de studios expérientiels en WebGL",
+      "thesis": "Un fond shader vivant, l'interface flotte en fine typo.",
+      "palette": ["#0d0b1e", "#ff5a1f", "#f2f2f2"],
+      "materials": ["fragment shader", "grain"],
+      "viewport": "Un mot géant sur un champ coloré qui se déforme sous le curseur.",
+      "risk": "Cache l'offre et l'action, pas un jeu.",
+      "case": "Fusion faible sur les deux axes.",
+      "kept": "Construire la technique pour de vrai, pas l'imiter.",
+      "hero": "https://impeccable.style/worlds/cards/webgl-shader-portal-hero.webp"
+    },
+    {
+      "id": "challenger-civic",
+      "label": "Prospectus institutionnel",
+      "verdict": "declined",
+      "lineage": "Brochures corporate late-modern",
+      "thesis": "Blanc os et un ruban de couleur.",
+      "palette": ["#f7f7fa", "#1b1547", "#6b5ce7", "#7fd8d0"],
+      "materials": ["ruban rendu", "filets gris"],
+      "viewport": "Un ruban violet sur fond blanc.",
+      "risk": "C'est exactement le style SaaS B2B à quitter.",
+      "case": "Perd sur les deux axes.",
+      "kept": "Toute la couleur dépensée à un seul endroit.",
+      "hero": "https://impeccable.style/worlds/cards/civic-bureau-prospectus-late-modern-hero.webp"
+    },
+    {
+      "id": "challenger-accretion",
+      "label": "Disque d'accrétion",
+      "verdict": "declined",
+      "lineage": "Imagerie de trous noirs",
+      "thesis": "Matière qui franchit un seuil irréversible.",
+      "palette": ["#000000", "#cfe3ff", "#d0452b", "#f0b84a"],
+      "materials": ["anneaux lumineux", "noir absolu"],
+      "viewport": "Un anneau de lumière autour d'un centre noir.",
+      "risk": "Néon sur noir, le cliché du TCG sombre.",
+      "case": "Perd sur les deux axes.",
+      "kept": "Chaque état est un matériau distinct.",
+      "hero": "https://impeccable.style/worlds/cards/galaxies-nebulae-deep-time-accretion-disk-threshold-hero.webp"
+    },
+    {
+      "id": "challenger-provenance",
+      "label": "Ruban de provenance",
+      "verdict": "declined",
+      "lineage": "Muséographie de la provenance",
+      "thesis": "La vie d'un objet de main en main.",
+      "palette": ["#e8dcc2", "#b3261e", "#6b6b6b"],
+      "materials": ["papier d'archive", "ruban de soie"],
+      "viewport": "Un ruban rouge qui suit les propriétaires d'une carte.",
+      "risk": "Trop muséal pour un jeu.",
+      "case": "Pertinent pour les exemplaires échangés, mais l'audience ne s'y reconnaît pas.",
+      "kept": "Le numéro d'exemplaire comme objet possédé.",
+      "hero": "https://impeccable.style/worlds/cards/exhibition-museum-curation-provenance-ribbon-hero.webp"
+    }
+  ],
+  "reroll": {"registers": ["safer", "bolder"]},
+  "canon": true,
+  "canonCard": {
+    "label": "Le standard du jeu mobile TCG",
+    "thesis": "L'interface de jeu que tout joueur de TCG mobile reconnaît, exécutée au niveau de Pokémon TCG Pocket ou Marvel Snap.",
+    "palette": ["#1b1450", "#3a2bd1", "#ff3d8b", "#ffc83d", "#ffffff"],
+    "materials": ["dégradés saturés", "boutons bombés à biseau", "HUD de monnaie", "reflets holo"],
+    "viewport": "Une scène de packs en éventail sur fond dégradé, un gros bouton bombé « Ouvrir », compteurs de jetons en haut.",
+    "risk": "Indiscernable des autres jeux du genre, par construction."
+  },
+  "steer": true
+}
