@@ -1,0 +1,21 @@
+SELECT ?model ?modelLabel ?makerLabel ?country ?image ?sitelinks ?start ?end
+       (GROUP_CONCAT(DISTINCT ?classId; separator="|") AS ?classes)
+       (SAMPLE(?powerAmount) AS ?power) (SAMPLE(?powerUnit) AS ?powerUnitS)
+       (SAMPLE(?massAmount) AS ?mass)
+WHERE {
+  ?model wdt:P31 wd:Q3231690 ;
+         wdt:P18 ?image ;
+         wdt:P176 ?maker ;
+         wikibase:sitelinks ?sitelinks .
+  FILTER(?sitelinks >= 12)
+  OPTIONAL { ?maker wdt:P17/wdt:P297 ?country . }
+  OPTIONAL { ?model wdt:P571 ?start . }
+  OPTIONAL { ?model wdt:P2669 ?end . }
+  OPTIONAL { ?model wdt:P279 ?class . BIND(STRAFTER(STR(?class), "entity/") AS ?classId) }
+  OPTIONAL { ?model p:P2109/psv:P2109 [ wikibase:quantityAmount ?powerAmount ; wikibase:quantityUnit ?powerUnit ] . }
+  OPTIONAL { ?model wdt:P2067 ?massAmount . }
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "fr,en". }
+}
+GROUP BY ?model ?modelLabel ?makerLabel ?country ?image ?sitelinks ?start ?end
+ORDER BY DESC(?sitelinks)
+LIMIT 600
