@@ -64,6 +64,7 @@ export type Database = {
       card_copies: {
         Row: {
           card_slug: string
+          finish: string
           id: string
           obtained_at: string
           obtained_via: string
@@ -72,6 +73,7 @@ export type Database = {
         }
         Insert: {
           card_slug: string
+          finish?: string
           id?: string
           obtained_at?: string
           obtained_via: string
@@ -80,6 +82,7 @@ export type Database = {
         }
         Update: {
           card_slug?: string
+          finish?: string
           id?: string
           obtained_at?: string
           obtained_via?: string
@@ -149,6 +152,38 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      copy_history: {
+        Row: {
+          at: string
+          copy_id: string
+          id: number
+          owner_id: string | null
+          via: string
+        }
+        Insert: {
+          at?: string
+          copy_id: string
+          id?: never
+          owner_id?: string | null
+          via: string
+        }
+        Update: {
+          at?: string
+          copy_id?: string
+          id?: never
+          owner_id?: string | null
+          via?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "copy_history_copy_id_fkey"
+            columns: ["copy_id"]
+            isOneToOne: false
+            referencedRelation: "card_copies"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       garage_slots: {
         Row: {

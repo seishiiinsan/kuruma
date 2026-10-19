@@ -3,7 +3,7 @@ import { connection } from "next/server";
 import { cache } from "react";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { cardBySlug } from "./catalog";
-import { byRarity, toFace, type CardFace } from "./cards";
+import { asFinish, byRarity, toFace, type CardFace, type Finish } from "./cards";
 import { toLook, type Look } from "./cosmetics";
 import { toAccount, type Account } from "./trust";
 
@@ -21,6 +21,7 @@ export type PlayerRef = {
 export type Copy = {
   id: string;
   serial: number;
+  finish: Finish;
   obtainedAt: string;
   card: CardFace;
 };
@@ -48,10 +49,22 @@ const toPlayer = (p: {
   look: toLook(p),
 });
 
-function toCopy(row: { id: string; card_slug: string; serial: number; obtained_at: string }): Copy | null {
+function toCopy(row: {
+  id: string;
+  card_slug: string;
+  serial: number;
+  finish: string;
+  obtained_at: string;
+}): Copy | null {
   const card = cardBySlug(row.card_slug);
   return card
-    ? { id: row.id, serial: row.serial, obtainedAt: row.obtained_at, card: toFace(card) }
+    ? {
+        id: row.id,
+        serial: row.serial,
+        finish: asFinish(row.finish),
+        obtainedAt: row.obtained_at,
+        card: toFace(card),
+      }
     : null;
 }
 
@@ -122,7 +135,7 @@ export async function getCopiesOf(userId: string): Promise<Copy[]> {
   const supabase = await client();
   const { data } = await supabase
     .from("card_copies")
-    .select("id, card_slug, serial, obtained_at")
+    .select("id, card_slug, serial, finish, obtained_at")
     .eq("owner_id", userId)
     .order("obtained_at", { ascending: false });
   return (data ?? []).map(toCopy).filter(isCopy);
@@ -132,7 +145,7 @@ export async function getCardCirculation(slug: string) {
   const supabase = await client();
   const [{ data: card }, { data: copies }] = await Promise.all([
     supabase.from("cards").select("minted, supply").eq("slug", slug).maybeSingle(),
-    supabase.from("card_copies").select("id, serial, owner_id, obtained_at").eq("card_slug", slug).order("serial"),
+    supabase.from("card_copies").select("id, serial, finish, owner_id, obtained_at").eq("card_slug", slug).order("serial"),
   ]);
   const owners = await getPlayersByIds((copies ?? []).flatMap((c) => (c.owner_id ? [c.owner_id] : [])));
   return {
@@ -140,11 +153,69 @@ export async function getCardCirculation(slug: string) {
     copies: (copies ?? []).map((c) => ({
       id: c.id,
       serial: c.serial,
+      finish: asFinish(c.finish),
       obtainedAt: c.obtained_at,
       owner: c.owner_id ? (owners.get(c.owner_id) ?? null) : null,
       /** Sold back to the shop, waiting for a buyer. */
       inShop: c.owner_id === null,
     })),
+  };
+}
+
+export type HistoryVia = "pack" | "trade" | "shop" | "market";
+
+/** One owner of a copy, in the order it changed hands. */
+export type CopyOwner = {
+  /** null when that player deleted their account. */
+  player: PlayerRef | null;
+  via: HistoryVia;
+  at: string;
+  /** What they paid on the player market. */
+  price: number | null;
+};
+
+/** One numbered copy with everyone who held it, first owner first. */
+export async function getCopyProvenance(slug: string, serial: number) {
+  const supabase = await client();
+  const { data: copy } = await supabase
+    .from("card_copies")
+    .select("id, serial, finish, owner_id, obtained_at")
+    .eq("card_slug", slug)
+    .eq("serial", serial)
+    .maybeSingle();
+  if (!copy) return null;
+
+  const [{ data: rows }, { data: sales }, { data: listing }] = await Promise.all([
+    supabase.from("copy_history").select("owner_id, via, at").eq("copy_id", copy.id).order("at").order("id"),
+    supabase.from("market_sales").select("buyer_id, price, sold_at").eq("copy_id", copy.id),
+    supabase.from("market_listings").select("seller_id, price").eq("copy_id", copy.id).maybeSingle(),
+  ]);
+  const players = await getPlayersByIds((rows ?? []).flatMap((r) => (r.owner_id ? [r.owner_id] : [])));
+
+  const owners: CopyOwner[] = (rows ?? []).map((r) => {
+    // The sale recorded closest to the change of hands.
+    const sale =
+      r.via === "market"
+        ? (sales ?? [])
+            .filter((s) => s.buyer_id === r.owner_id)
+            .sort((a, b) => Math.abs(Date.parse(a.sold_at) - Date.parse(r.at)) - Math.abs(Date.parse(b.sold_at) - Date.parse(r.at)))[0]
+        : undefined;
+    return {
+      player: r.owner_id ? (players.get(r.owner_id) ?? null) : null,
+      via: r.via as HistoryVia,
+      at: r.at,
+      price: sale?.price ?? null,
+    };
+  });
+
+  return {
+    id: copy.id,
+    serial: copy.serial,
+    finish: asFinish(copy.finish),
+    owners,
+    /** Nobody holds it right now: listed on the market or in the shop. */
+    status: copy.owner_id ? ("owned" as const) : listing ? ("market" as const) : ("shop" as const),
+    listingPrice: listing?.price ?? null,
   };
 }
 
@@ -239,7 +310,7 @@ export async function getGarage(userId: string): Promise<Copy[]> {
   const supabase = await client();
   const { data } = await supabase
     .from("garage_slots")
-    .select("position, card_copies (id, card_slug, serial, obtained_at)")
+    .select("position, card_copies (id, card_slug, serial, finish, obtained_at)")
     .eq("user_id", userId)
     .order("position");
   return (data ?? [])
@@ -297,7 +368,7 @@ export async function getTrades(viewerId: string): Promise<Trade[]> {
   const { data } = await supabase
     .from("trades")
     .select(
-      "id, from_id, to_id, status, created_at, resolved_at, trade_items (side, card_copies (id, card_slug, serial, obtained_at))",
+      "id, from_id, to_id, status, created_at, resolved_at, trade_items (side, card_copies (id, card_slug, serial, finish, obtained_at))",
     )
     .order("created_at", { ascending: false })
     .limit(100);

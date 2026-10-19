@@ -154,7 +154,7 @@ async function PlayerProfile({ params }: { params: Promise<{ handle: string }> }
               {garage.map((copy) => (
                 <li key={copy.id}>
                   <Link href={`/cartes/${copy.card.slug}`} className="block">
-                    <TradingCard card={copy.card} serial={copy.serial} className="w-full" />
+                    <TradingCard card={copy.card} serial={copy.serial} finish={copy.finish} className="w-full" />
                   </Link>
                 </li>
               ))}
@@ -218,7 +218,7 @@ async function PlayerProfile({ params }: { params: Promise<{ handle: string }> }
             {stacks.slice(0, 48).map(({ card, copies }) => (
               <li key={card.slug} className="relative">
                 <Link href={`/cartes/${card.slug}`} className="block">
-                  <TradingCard card={card} serial={copies[0].serial} interactive={false} className="w-full" />
+                  <TradingCard card={card} serial={copies[0].serial} finish={copies[0].finish} interactive={false} className="w-full" />
                 </Link>
                 {copies.length > 1 && (
                   <span className="absolute -top-1.5 -right-1.5 z-10 rounded-full bg-accent px-1.5 py-0.5 text-[0.65rem] font-black text-accent-ink tabular-nums shadow-[0_2px_0_var(--accent-edge)]">

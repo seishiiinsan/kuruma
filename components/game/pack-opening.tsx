@@ -15,7 +15,7 @@ import {
 } from "motion/react";
 import { ChevronsRight, X } from "lucide-react";
 import { openPack, type PackResult } from "@/app/actions/packs";
-import { TIERS, formatInt, formatSerial, type CardTier } from "@/lib/cards";
+import { FINISHES, TIERS, formatInt, formatSerial, serialBadge, type CardTier } from "@/lib/cards";
 import type { Copy } from "@/lib/game";
 import type { PackDef, Wallet } from "@/lib/packs";
 import { BODY_CLIP, PackImage, STRIP_CLIP, TEAR_Y } from "../booster";
@@ -226,7 +226,7 @@ function RevealCardFace({
               }
         }
       >
-        <TradingCard card={card} serial={copy.serial} className={CARD_W} sweep={legendary} priority />
+        <TradingCard card={card} serial={copy.serial} finish={copy.finish} className={CARD_W} sweep={legendary || copy.finish === "holo"} priority />
       </motion.div>
     );
   }
@@ -265,6 +265,7 @@ function RevealCardFace({
 /** Name, rarity and number of the card just turned, set in like a title card. */
 function CardCaption({ copy, isNew, reduce }: { copy: Copy; isNew: boolean; reduce: boolean }) {
   const { card } = copy;
+  const badge = serialBadge(copy.serial, card.supply);
   const item = (delay: number) =>
     reduce
       ? {}
@@ -291,6 +292,10 @@ function CardCaption({ copy, isNew, reduce }: { copy: Copy; isNew: boolean; redu
             Nouvelle
           </span>
         )}
+        {copy.finish !== "standard" && (
+          <span className="rounded-full bg-white px-2.5 py-1 text-[#3a2a55]">{FINISHES[copy.finish].label}</span>
+        )}
+        {badge && <span className="rounded-full bg-tier-legendary px-2.5 py-1 text-[#4a3200]">{badge}</span>}
       </motion.p>
       <motion.p {...item(0.2)} className="text-sm font-semibold text-muted tabular-nums">
         {[card.brand, card.year, formatSerial(copy.serial, card.supply)].filter(Boolean).join(" · ")}
@@ -516,7 +521,7 @@ function Summary({
       </p>
 
       <ul className="mt-10 grid w-full max-w-4xl grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-3 lg:grid-cols-5">
-        {copies.map(({ id, card, serial }, i) => (
+        {copies.map(({ id, card, serial, finish }, i) => (
           <motion.li
             key={id}
             className="relative"
@@ -525,7 +530,7 @@ function Summary({
             transition={{ delay: i * 0.06, duration: 0.4, ease: EASE_OUT }}
           >
             <Link href={`/cartes/${card.slug}`} className="block">
-              <TradingCard card={card} serial={serial} className="w-full" />
+              <TradingCard card={card} serial={serial} finish={finish} className="w-full" />
             </Link>
             {newSlugs.has(card.slug) && (
               <span className="absolute -top-2 -right-2 z-10 rounded-full bg-green px-2 py-0.5 text-xs font-black shadow-[0_2px_0_var(--green-edge)]" style={{ color: "var(--green-ink)" }}>
